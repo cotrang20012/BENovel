@@ -71,4 +71,11 @@ public class NovelServiceImpl implements NovelService {
         log.info("Searching Novel by theloai: "+theloai);
         return novelRepository.findAllByTheloaiContainsAllIgnoreCase(theloai, pageable);
     }
+
+    @Override
+    public List<Novel> SearchByNguoidangtruyen(String username, Pageable pageable) {
+        return novelRepository.findByNguoidangtruyen(username, pageable);
+    }
+
+
 }

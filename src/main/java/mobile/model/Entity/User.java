@@ -16,6 +16,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "User")
 public class User {
     @JsonIgnore
+
     @Id
     protected  ObjectId _id;
     protected  String username;
