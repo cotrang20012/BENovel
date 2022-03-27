@@ -1,5 +1,6 @@
 package mobile.Service.Impl;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.transaction.Transactional;
@@ -22,17 +23,22 @@ public class ReadingServiceImpl implements ReadingService{
 	final ReadingRepository readingRepository;
 	
 	@Override
-	public void upsertReading(User user, Chapter chapter, Novel novel, String url) {
-		Optional<Reading> reading = readingRepository.findByUserIdAndDautruyenId(user.getId(), novel.getId());
-		if(reading.isEmpty()) {
-			Reading newReading = new Reading(novel.getId(),chapter.getId(),user.getId(),chapter.getChapnumber(),url);
+	public void upsertReading(Reading reading) {
+		Optional<Reading> readingDB = readingRepository.findWithParam(reading.getUser().getId(), reading.getNovel().getId());
+		if(readingDB.isEmpty()) {
+			Reading newReading = new Reading(reading.getUser(),reading.getChapnumber(),reading.getNovel());
 			readingRepository.save(newReading);
 		} else {
-			Reading oldReading = reading.get();
-			oldReading.setChapnumber(chapter.getChapnumber());
-			oldReading.setChapterId(chapter.getId());
+			Reading oldReading = readingDB.get();
+			oldReading.setChapnumber(reading.getChapnumber());
 			readingRepository.save(oldReading);
 		}
 	}
-	
+
+	@Override
+	public List<Reading> getReadings(User user) {
+		List<Reading> list = readingRepository.findByUserId(user.getId());
+		return list;
+	}
+
 }

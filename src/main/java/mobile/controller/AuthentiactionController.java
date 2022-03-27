@@ -198,8 +198,8 @@ public class AuthentiactionController {
 
     @GetMapping("/active")
     public ResponseEntity<SuccessResponse> activeToken( @RequestParam(defaultValue = "") String key
-    ) {
-            if(key == null || key ==""){
+    ) throws Exception {
+            if(key == null || key.equals("")){
                 throw new BadCredentialsException("key active is not valid");
             }
 

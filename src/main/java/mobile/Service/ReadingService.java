@@ -1,14 +1,15 @@
 package mobile.Service;
 
+import mobile.model.Entity.User;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Pageable;
 
-import mobile.model.Entity.Chapter;
-import mobile.model.Entity.Novel;
-import mobile.model.Entity.User;
+import mobile.model.Entity.Reading;
 
 import java.util.List;
 
+
 public interface ReadingService {
-   void upsertReading(User user, Chapter chapter, Novel novel, String url);
+   void upsertReading(Reading reading);
+   List<Reading> getReadings(User user);
 }

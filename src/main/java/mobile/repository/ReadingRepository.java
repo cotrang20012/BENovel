@@ -14,6 +14,10 @@ import java.util.Optional;
 
 @EnableMongoRepositories
 public interface ReadingRepository  extends MongoRepository<Reading, ObjectId> {
+    @Query("{'user.$id':?0}")
     List<Reading> findByUserId(ObjectId id);
-    Optional<Reading> findByUserIdAndDautruyenId (ObjectId userId, ObjectId dautruyenId);
+   // @Query("{$and : [?#{{'user.$id':[0]}},?#{{'novel.$id':[1]}}]}")
+   @Query("{$and : [{'user.$id':?0},{'novel.$id':?1}]}")
+    Optional<Reading> findWithParam(ObjectId userId, ObjectId novelId);
+
 }
