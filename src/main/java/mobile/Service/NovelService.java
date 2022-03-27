@@ -15,4 +15,5 @@ public interface NovelService {
     List<Novel> SearchByTypeAndTentruyen(String type,String value,Pageable pageable);
     List<Novel> SearchByTacgia(String value,Pageable pageable);
     List<Novel> SearchByType(String theloai,Pageable pageable);
+    List<Novel> SearchByNguoidangtruyen(String username, Pageable pageable);
 }

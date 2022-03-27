@@ -18,4 +18,5 @@ public interface NovelRepository  extends MongoRepository<Novel, ObjectId> {
     List<Novel> findAllByTheloaiContainsAndTentruyenContainsAllIgnoreCase(String type,String value,Pageable pageable);
     List<Novel> findAllByTacgiaContainsAllIgnoreCase(String value,Pageable pageable);
     List<Novel> findAllByTheloaiContainsAllIgnoreCase(String theloai,Pageable pageable);
+    List<Novel> findByNguoidangtruyen(String username,Pageable pageable);
 }

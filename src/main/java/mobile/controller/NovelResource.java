@@ -198,4 +198,21 @@ public class NovelResource {
 		}
 		return new ResponseEntity<List<Novel>>(novelList, HttpStatus.OK);
 	}
+
+	@GetMapping("/created") //lấy danh sách truyện được tạo theo username
+	@ResponseBody
+	public ResponseEntity<List<Novel>> getNovelsByUsername(@RequestParam(defaultValue = "None") String status,
+														 @RequestParam(defaultValue = "tentruyen") String sort,
+														 @RequestParam(defaultValue = "0") int page,
+														 @RequestParam(defaultValue = "20") int size,
+														 @RequestParam String username,
+														 HttpServletRequest request){
+		Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
+		List<Novel> novelList = novelService.SearchByNguoidangtruyen(username, pageable);
+
+		if (novelList == null) {
+			throw new RecordNotFoundException("No Novel existing ");
+		}
+		return new ResponseEntity<List<Novel>>(novelList, HttpStatus.OK);
+	}
 }
