@@ -12,13 +12,14 @@ public class Chapter {
     protected ObjectId _id;
     protected int chapnumber;
     protected String content;
-    protected ObjectId dautruyenId;
+    @DBRef
+    protected Novel dautruyenId;
     protected String tenchap;
 
     public Chapter() {
     }
 
-    public Chapter(ObjectId _id, int chapnumber, String content, ObjectId dautruyenId, String tenchap) {
+    public Chapter(ObjectId _id, int chapnumber, String content, Novel dautruyenId, String tenchap) {
         this._id = _id;
         this.chapnumber = chapnumber;
         this.content = content;
@@ -49,11 +50,11 @@ public class Chapter {
         this.content = content;
     }
 
-    public ObjectId getDautruyenId() {
+    public Novel getDautruyenId() {
         return dautruyenId;
     }
 
-    public void setDautruyenId(ObjectId dautruyenId) {
+    public void setDautruyenId(Novel dautruyenId) {
         this.dautruyenId = dautruyenId;
     }
 
