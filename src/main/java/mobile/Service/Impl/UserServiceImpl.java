@@ -1,5 +1,6 @@
 package mobile.Service.Impl;
 
+import mobile.Handler.RecordNotFoundException;
 import mobile.Service.UserService;
 
 import mobile.mapping.UserMapping;
@@ -13,10 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service @RequiredArgsConstructor @Transactional @Slf4j
 public class UserServiceImpl implements UserService {
@@ -35,6 +33,12 @@ public class UserServiceImpl implements UserService {
         else{
             user.getRoles().add(role.get());
         }
+        return userRepository.save(user);
+    }
+
+    @Override
+    public User saveUser(User user) {
+        log.info("Saving User {} to database",user.getUsername());
         return userRepository.save(user);
     }
 
@@ -59,6 +63,22 @@ public class UserServiceImpl implements UserService {
             user.get().getRoles().add(role.get());
         }
         userRepository.save(user.get());
+    }
+
+    public void updateRoleToUser(User user, List<String> strList) {
+        Set<Role> roleList = new HashSet<>();
+        for (String str: strList ) {
+            Optional<Role> role = roleRepository.findByName(str);
+            if(!role.isEmpty()){
+                roleList.add(role.get());
+            }
+        }
+        if(roleList.size()==0)
+            throw new RecordNotFoundException("Not found any role");
+
+        user.setRoles(roleList);
+        userRepository.save(user);
+
     }
 
     @Override
