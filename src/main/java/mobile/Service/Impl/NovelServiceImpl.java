@@ -40,7 +40,7 @@ public class NovelServiceImpl implements NovelService {
     @Override
     public Novel findByUrl(String url) {
         log.info("Fetching  Novel: "+url);
-        return novelRepository.findByUrl(url).get();
+        return novelRepository.findByUrl(url);
     }
 
     @Override
