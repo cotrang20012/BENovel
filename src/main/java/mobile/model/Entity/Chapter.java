@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.rest.core.annotation.RestResource;
 
 @RestResource(exported=false)
-@Document(collection = "ChapterCollection")
+@Document(collection = "chapters")
 public class Chapter {
     @Id
     protected ObjectId _id;

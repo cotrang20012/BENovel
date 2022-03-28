@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.List;
 
 @RestResource(exported=false)
-@Document(collection = "CommentCollection")
+@Document(collection = "comments")
 public class Comment {
     @JsonIgnore
     @Id

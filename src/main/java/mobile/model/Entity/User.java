@@ -13,7 +13,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @RestResource(exported=false)
-@Document(collection = "User")
+@Document(collection = "users")
 public class User {
     @JsonIgnore
 

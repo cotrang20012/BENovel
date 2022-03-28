@@ -217,8 +217,9 @@ public class NovelResource {
                                                            @RequestParam String username,
                                                            HttpServletRequest request) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
-        List<Novel> novelList = novelService.SearchByNguoidangtruyen(username, pageable);
-
+        User user = userService.findByUsername(username);
+        System.out.println(user.getId().toHexString());
+        List<Novel> novelList = novelService.SearchByNguoidangtruyen(user.getId(), pageable);
         if (novelList == null) {
             throw new RecordNotFoundException("No Novel existing ");
         }

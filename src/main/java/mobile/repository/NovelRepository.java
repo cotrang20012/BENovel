@@ -4,6 +4,7 @@ import mobile.model.Entity.Novel;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 import java.util.List;
@@ -18,5 +19,7 @@ public interface NovelRepository  extends MongoRepository<Novel, ObjectId> {
     List<Novel> findAllByTheloaiContainsAndTentruyenContainsAllIgnoreCase(String type,String value,Pageable pageable);
     List<Novel> findAllByTacgiaContainsAllIgnoreCase(String value,Pageable pageable);
     List<Novel> findAllByTheloaiContainsAllIgnoreCase(String theloai,Pageable pageable);
-    List<Novel> findByNguoidangtruyen(String username,Pageable pageable);
+
+    @Query("{'nguoidangtruyen.$id':?0}")
+    List<Novel> findWithUserId(ObjectId id,Pageable pageable);
 }
