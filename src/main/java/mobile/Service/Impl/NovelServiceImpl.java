@@ -6,6 +6,7 @@ import mobile.model.Entity.Novel;
 import mobile.repository.NovelRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -73,8 +74,8 @@ public class NovelServiceImpl implements NovelService {
     }
 
     @Override
-    public List<Novel> SearchByNguoidangtruyen(String username, Pageable pageable) {
-        return novelRepository.findByNguoidangtruyen(username, pageable);
+    public List<Novel> SearchByNguoidangtruyen(ObjectId id, Pageable pageable) {
+        return novelRepository.findWithUserId(id, pageable);
     }
 
 

@@ -1,6 +1,7 @@
 package mobile.Service;
 
 import mobile.model.Entity.Novel;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -15,5 +16,5 @@ public interface NovelService {
     List<Novel> SearchByTypeAndTentruyen(String type,String value,Pageable pageable);
     List<Novel> SearchByTacgia(String value,Pageable pageable);
     List<Novel> SearchByType(String theloai,Pageable pageable);
-    List<Novel> SearchByNguoidangtruyen(String username, Pageable pageable);
+    List<Novel> SearchByNguoidangtruyen(ObjectId id, Pageable pageable);
 }

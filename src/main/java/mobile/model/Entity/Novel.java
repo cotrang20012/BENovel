@@ -1,18 +1,20 @@
 package mobile.model.Entity;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.rest.core.annotation.RestResource;
 
 @RestResource(exported=false)
-@Document(collection = "NovelCollection")
+@Document(collection = "novels")
 public class Novel {
     @Id
     protected ObjectId _id;
     protected int danhgia;
     protected String hinhanh;
     protected int luotdoc;
-    protected String nguoidangtruyen;
+    @DBRef
+    protected User nguoidangtruyen;
     protected String noidung;
     protected int soluongdanhgia;
     protected String tacgia;
@@ -33,7 +35,7 @@ public class Novel {
     public Novel() {
     }
 
-    public Novel(ObjectId _id, int danhgia, String hinhanh, int luotdoc, String nguoidangtruyen, String noidung, int soluongdanhgia, String tacgia, String tentruyen, String theloai, String trangthai, String status,String url) {
+    public Novel(ObjectId _id, int danhgia, String hinhanh, int luotdoc, User nguoidangtruyen, String noidung, int soluongdanhgia, String tacgia, String tentruyen, String theloai, String trangthai, String status,String url) {
         this._id = _id;
         this.danhgia = danhgia;
         this.hinhanh = hinhanh;
@@ -81,11 +83,11 @@ public class Novel {
         this.luotdoc = luotdoc;
     }
 
-    public String getNguoidangtruyen() {
+    public User getNguoidangtruyen() {
         return nguoidangtruyen;
     }
 
-    public void setNguoidangtruyen(String nguoidangtruyen) {
+    public void setNguoidangtruyen(User nguoidangtruyen) {
         this.nguoidangtruyen = nguoidangtruyen;
     }
 
