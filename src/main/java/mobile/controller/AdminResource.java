@@ -9,6 +9,7 @@ import mobile.model.payload.request.user.RoleToUserRequest;
 import mobile.Handler.HttpMessageNotReadableException;
 import mobile.Handler.MethodArgumentNotValidException;
 import mobile.Handler.RecordNotFoundException;
+import mobile.model.payload.request.user.UpdateRoleToUserRequest;
 import mobile.model.payload.response.ErrorResponseMap;
 import mobile.model.payload.response.SuccessResponse;
 import lombok.RequiredArgsConstructor;
@@ -75,7 +76,6 @@ public class AdminResource {
             User newUser = UserMapping.registerToEntity(user);
             newUser.setActive(true);
             userService.saveUser(newUser,user.getRoles());
-
             SuccessResponse response = new SuccessResponse();
             response.setStatus(HttpStatus.OK.value());
             response.setMessage("add user successful");
@@ -85,6 +85,69 @@ public class AdminResource {
 
         }catch(Exception ex){
             throw new Exception("Can't create your account");
+        }
+    }
+
+    @PutMapping("user/active")
+    @ResponseBody
+    public ResponseEntity<SuccessResponse> activeUser(@RequestBody Map<String,String> json, BindingResult errors) throws  Exception {
+        if (errors.hasErrors()) {
+            throw new MethodArgumentNotValidException(errors);
+        }
+        if (json == null) {
+            LOGGER.info("Inside addIssuer, adding: " + json.toString());
+            throw new HttpMessageNotReadableException("Missing field");
+        } else {
+            LOGGER.info("Inside addIssuer...");
+        }
+        User user = userService.findByUsername(json.get("username"));
+
+        if(user == null){
+            throw new RecordNotFoundException("User not exist");
+        }
+        user.setActive(true);
+        try{
+            userService.saveUser(user);
+            SuccessResponse response = new SuccessResponse();
+            response.setStatus(HttpStatus.OK.value());
+            response.setMessage("Active user successful");
+            response.setSuccess(true);
+            response.getData().put("username",user.getUsername());
+            return new ResponseEntity<SuccessResponse>(response,HttpStatus.OK);
+
+        }catch(Exception ex){
+            throw new Exception("Can't active account");
+        }
+    }
+    @PutMapping("user/inactive")
+    @ResponseBody
+    public ResponseEntity<SuccessResponse> inactiveUser(@RequestBody Map<String,String> json, BindingResult errors) throws  Exception {
+        if (errors.hasErrors()) {
+            throw new MethodArgumentNotValidException(errors);
+        }
+        if (json == null) {
+            LOGGER.info("Inside addIssuer, adding: " + json.toString());
+            throw new HttpMessageNotReadableException("Missing field");
+        } else {
+            LOGGER.info("Inside addIssuer...");
+        }
+        User user = userService.findByUsername(json.get("username"));
+
+        if(user == null){
+            throw new RecordNotFoundException("User not exist");
+        }
+        user.setActive(false);
+        try{
+            userService.saveUser(user);
+            SuccessResponse response = new SuccessResponse();
+            response.setStatus(HttpStatus.OK.value());
+            response.setMessage("Inactive user successful");
+            response.setSuccess(true);
+            response.getData().put("username",user.getUsername());
+            return new ResponseEntity<SuccessResponse>(response,HttpStatus.OK);
+
+        }catch(Exception ex){
+            throw new Exception("Can't inactive account");
         }
     }
 
@@ -119,6 +182,38 @@ public class AdminResource {
         response.getData().put("email",roleForm.getEmail());
         response.getData().put("role",roleForm.getRoleName());
         return new ResponseEntity<SuccessResponse>(response,HttpStatus.OK);
+
+        }catch(Exception ex){
+            throw new Exception("Can't add role to account");
+        }
+    }
+
+    @PostMapping("role/updatetouser")
+    @ResponseBody
+    public ResponseEntity<SuccessResponse> addRoleToUser(@RequestBody @Valid UpdateRoleToUserRequest roleListForm, BindingResult errors) throws  Exception  {
+        if (errors.hasErrors()) {
+            throw new MethodArgumentNotValidException(errors);
+        }
+
+        if (roleListForm == null) {
+            LOGGER.info("Inside addIssuer, adding: " + roleListForm.toString());
+            throw new HttpMessageNotReadableException("Missing field");
+        } else {
+            LOGGER.info("Inside addIssuer...");
+        }
+        User user = userService.findByUsername(roleListForm.getUsername());
+        if(user==null){
+            throw new HttpMessageNotReadableException("User is not exist");
+        }
+
+        try{
+            userService.updateRoleToUser(user,roleListForm.getRoleList());
+            SuccessResponse response = new SuccessResponse();
+            response.setStatus(HttpStatus.OK.value());
+            response.setMessage("add user successful");
+            response.setSuccess(true);
+            response.getData().put("username",roleListForm.getUsername());
+            return new ResponseEntity<SuccessResponse>(response,HttpStatus.OK);
 
         }catch(Exception ex){
             throw new Exception("Can't add role to account");

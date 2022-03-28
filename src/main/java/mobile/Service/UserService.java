@@ -10,8 +10,10 @@ import java.util.List;
 
 public interface UserService {
     User saveUser(User user, String roleName);
+    User saveUser(User user);
     Role saveRole(Role role);
     void addRoleToUser(String email, String roleName);
+    void updateRoleToUser(User user, List<String> roleList);
     User getUser(String email);
     List<User> getUsers();
     Boolean existsByEmail(String email);
