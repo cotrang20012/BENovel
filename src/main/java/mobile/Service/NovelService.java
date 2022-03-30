@@ -17,4 +17,5 @@ public interface NovelService {
     List<Novel> SearchByTacgia(String value,Pageable pageable);
     List<Novel> SearchByType(String theloai,Pageable pageable);
     List<Novel> SearchByNguoidangtruyen(ObjectId id, Pageable pageable);
+    void CreateNovel(Novel newNovel);
 }

@@ -283,6 +283,8 @@ public class NovelResource {
 
             Novel newNovel = NovelMapping.CreateRequestToNovel(createNovelRequest);
             newNovel.setNguoidangtruyen(user);
+            novelService.CreateNovel(newNovel);
+
 
             SuccessResponse response = new SuccessResponse();
             response.setStatus(HttpStatus.OK.value());

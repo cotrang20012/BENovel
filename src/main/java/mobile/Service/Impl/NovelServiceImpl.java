@@ -78,5 +78,10 @@ public class NovelServiceImpl implements NovelService {
         return novelRepository.findWithUserId(id, pageable);
     }
 
+    @Override
+    public void CreateNovel(Novel newNovel) {
+        novelRepository.save(newNovel);
+    }
+
 
 }
