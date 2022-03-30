@@ -7,8 +7,10 @@ import mobile.Service.NovelService;
 import mobile.Service.ReadingService;
 import mobile.Service.UserService;
 import mobile.mapping.CommentMapping;
+import mobile.mapping.NovelMapping;
 import mobile.mapping.ReadingMapping;
 import mobile.model.Entity.*;
+import mobile.model.payload.request.novel.CreateNovelRequest;
 import mobile.model.payload.request.reading.ReadingRequest;
 import mobile.model.payload.response.CommentResponse;
 import mobile.model.payload.response.ReadingResponse;
@@ -263,4 +265,33 @@ public class NovelResource {
         }
     }
 
+    @PostMapping("novel/create") //Tạo đầu truyện
+    @ResponseBody
+    public ResponseEntity<SuccessResponse> createNovel(@RequestBody CreateNovelRequest createNovelRequest, HttpServletRequest request){
+        String authorizationHeader = request.getHeader(AUTHORIZATION);
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            String accessToken = authorizationHeader.substring("Bearer ".length());
+
+            if (jwtUtils.validateExpiredToken(accessToken) == true) {
+                throw new BadCredentialsException("access token is  expired");
+            }
+
+            User user = userService.findByUsername(jwtUtils.getUserNameFromJwtToken(accessToken));
+
+            if (user == null)
+                throw new RecordNotFoundException("User not found");
+
+            Novel newNovel = NovelMapping.CreateRequestToNovel(createNovelRequest);
+            newNovel.setNguoidangtruyen(user);
+
+            SuccessResponse response = new SuccessResponse();
+            response.setStatus(HttpStatus.OK.value());
+            response.setMessage("Create novel success!!");
+            response.setSuccess(true);
+            return new ResponseEntity<SuccessResponse>(response,HttpStatus.OK);
+        } else {
+            throw new BadCredentialsException("access token is missing");
+        }
+
+    }
 }
