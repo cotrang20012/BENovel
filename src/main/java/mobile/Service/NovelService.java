@@ -5,6 +5,7 @@ import org.bson.types.ObjectId;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface NovelService {
     List<Novel> getNovels();
@@ -17,5 +18,7 @@ public interface NovelService {
     List<Novel> SearchByTacgia(String value,Pageable pageable);
     List<Novel> SearchByType(String theloai,Pageable pageable);
     List<Novel> SearchByNguoidangtruyen(ObjectId id, Pageable pageable);
-    void CreateNovel(Novel newNovel);
+    void SaveNovel(Novel newNovel);
+    Optional<Novel> findById(ObjectId id);
+    void DeleteNovel(Novel novel);
 }

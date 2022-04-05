@@ -41,4 +41,8 @@ public class ReadingServiceImpl implements ReadingService{
 		return list;
 	}
 
+	@Override
+	public void deleteAllReadingByNovel(Novel novel) {
+		readingRepository.deleteAllByNovel(novel);
+	}
 }

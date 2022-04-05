@@ -1,6 +1,7 @@
 package mobile.repository;
 
 import mobile.model.Entity.Chapter;
+import mobile.model.Entity.Novel;
 import mobile.model.Entity.Reading;
 
 import org.bson.types.ObjectId;
@@ -14,10 +15,11 @@ import java.util.Optional;
 
 @EnableMongoRepositories
 public interface ReadingRepository  extends MongoRepository<Reading, ObjectId> {
+    void deleteAllByNovel(Novel novel);
     @Query("{'user.$id':?0}")
     List<Reading> findByUserId(ObjectId id);
    // @Query("{$and : [?#{{'user.$id':[0]}},?#{{'novel.$id':[1]}}]}")
-   @Query("{$and : [{'user.$id':?0},{'novel.$id':?1}]}")
+    @Query("{$and : [{'user.$id':?0},{'novel.$id':?1}]}")
     Optional<Reading> findWithParam(ObjectId userId, ObjectId novelId);
 
 }

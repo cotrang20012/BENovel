@@ -11,6 +11,7 @@ import mobile.mapping.NovelMapping;
 import mobile.mapping.ReadingMapping;
 import mobile.model.Entity.*;
 import mobile.model.payload.request.novel.CreateNovelRequest;
+import mobile.model.payload.request.novel.UpdateNovelRequest;
 import mobile.model.payload.request.reading.ReadingRequest;
 import mobile.model.payload.response.CommentResponse;
 import mobile.model.payload.response.ReadingResponse;
@@ -32,10 +33,7 @@ import org.springframework.data.domain.PageRequest;
 
 import static com.google.common.net.HttpHeaders.AUTHORIZATION;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -50,6 +48,7 @@ public class NovelResource {
     private final NovelService novelService;
     private final ChapterService chapterService;
     private final ReadingService readingService;
+    private final CommentService commentService;
 
     @Autowired
     JwtUtils jwtUtils;
@@ -283,7 +282,7 @@ public class NovelResource {
 
             Novel newNovel = NovelMapping.CreateRequestToNovel(createNovelRequest);
             newNovel.setNguoidangtruyen(user);
-            novelService.CreateNovel(newNovel);
+            novelService.SaveNovel(newNovel);
 
 
             SuccessResponse response = new SuccessResponse();
@@ -294,6 +293,84 @@ public class NovelResource {
         } else {
             throw new BadCredentialsException("access token is missing");
         }
+    }
+    @PutMapping("novel/edit")//Update đầu truyện
+    @ResponseBody
+    public ResponseEntity<SuccessResponse> editNovel(@RequestBody UpdateNovelRequest updateNovelRequest,HttpServletRequest request){
+        String authorizationHeader = request.getHeader(AUTHORIZATION);
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            String accessToken = authorizationHeader.substring("Bearer ".length());
 
+            if (jwtUtils.validateExpiredToken(accessToken) == true) {
+                throw new BadCredentialsException("access token is  expired");
+            }
+
+            User user = userService.findByUsername(jwtUtils.getUserNameFromJwtToken(accessToken));
+
+            if (user == null)
+                throw new RecordNotFoundException("User not found");
+
+            Optional<Novel> findNovel = novelService.findById(updateNovelRequest.getId());
+            if(!findNovel.isPresent()){
+                throw new RecordNotFoundException("Novel not found");
+            }
+
+            Novel oldNovel = findNovel.get();
+            if(oldNovel.getNguoidangtruyen().getUsername()==user.getUsername()){
+                NovelMapping.UpdateRequestToNovel(updateNovelRequest,oldNovel);
+                novelService.SaveNovel(oldNovel);
+            }
+            else{
+                throw new BadCredentialsException("Can't edit other user novel!!!!");
+            }
+
+            SuccessResponse response = new SuccessResponse();
+            response.setStatus(HttpStatus.OK.value());
+            response.setMessage("Update novel success!!");
+            response.setSuccess(true);
+            return new ResponseEntity<SuccessResponse>(response,HttpStatus.OK);
+        } else {
+            throw new BadCredentialsException("access token is missing");
+        }
+    }
+    @DeleteMapping("/{url}")//Delete đầu truyện, sẽ delete chapter, comment, reading liên kết cùng
+    @ResponseBody
+    public ResponseEntity<SuccessResponse> deleteNovel(@PathVariable String url,HttpServletRequest request){
+        String authorizationHeader = request.getHeader(AUTHORIZATION);
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            String accessToken = authorizationHeader.substring("Bearer ".length());
+
+            if (jwtUtils.validateExpiredToken(accessToken) == true) {
+                throw new BadCredentialsException("access token is  expired");
+            }
+
+            User user = userService.findByUsername(jwtUtils.getUserNameFromJwtToken(accessToken));
+
+            if (user == null)
+                throw new RecordNotFoundException("User not found");
+
+            Novel findNovel = novelService.findByUrl(url);
+            if(findNovel == null ){
+                throw new RecordNotFoundException("Novel not found");
+            }
+
+            if(findNovel.getNguoidangtruyen().getUsername().equals(user.getUsername())){
+                //commentService.DeleteCommentByNovelUrl(findNovel.getUrl());
+                //readingService.deleteAllReadingByNovel(findNovel);
+                chapterService.DeleteAllChapterByNovel(findNovel);
+                novelService.DeleteNovel(findNovel);
+            }
+            else{
+                throw new BadCredentialsException("Can't edit other user novel!!!!");
+            }
+
+            SuccessResponse response = new SuccessResponse();
+            response.setStatus(HttpStatus.OK.value());
+            response.setMessage("Delete novel success!!");
+            response.setSuccess(true);
+            return new ResponseEntity<SuccessResponse>(response,HttpStatus.OK);
+        } else {
+            throw new BadCredentialsException("access token is missing");
+        }
     }
 }

@@ -1,9 +1,13 @@
 package mobile.model.Entity;
 import org.bson.types.ObjectId;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.rest.core.annotation.RestResource;
+
+import java.util.Date;
 
 @RestResource(exported=false)
 @Document(collection = "novels")
@@ -23,7 +27,10 @@ public class Novel {
     protected String trangthai;
     protected String status;
     protected String url;
-
+    @CreatedDate
+    protected Date createAt;
+    @LastModifiedDate
+    protected Date updateAt;
     public String getUrl() {
         return url;
     }
@@ -35,7 +42,7 @@ public class Novel {
     public Novel() {
     }
 
-    public Novel(ObjectId _id, int danhgia, String hinhanh, int luotdoc, User nguoidangtruyen, String noidung, int soluongdanhgia, String tacgia, String tentruyen, String theloai, String trangthai, String status,String url) {
+    public Novel(ObjectId _id, int danhgia, String hinhanh, int luotdoc, User nguoidangtruyen, String noidung, int soluongdanhgia, String tacgia, String tentruyen, String theloai, String trangthai, String status,String url,Date createAt, Date updateAt) {
         this._id = _id;
         this.danhgia = danhgia;
         this.hinhanh = hinhanh;
@@ -49,6 +56,8 @@ public class Novel {
         this.trangthai = trangthai;
         this.status = status;
         this.url = url;
+        this.createAt = createAt;
+        this.updateAt = updateAt;
     }
 
     public ObjectId getId() {
@@ -58,6 +67,13 @@ public class Novel {
         this._id = id;
     }
 
+    public Date getCreateAt() {        return createAt;    }
+
+    public void setCreateAt(Date createAt) {        this.createAt = createAt;    }
+
+    public Date getUpdateAt() {        return updateAt;    }
+
+    public void setUpdateAt(Date updateAt) {        this.updateAt = updateAt;    }
 
     public int getDanhgia() {
         return danhgia;

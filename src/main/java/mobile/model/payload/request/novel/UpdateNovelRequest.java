@@ -1,6 +1,7 @@
 package mobile.model.payload.request.novel;
 
 import lombok.*;
+import org.bson.types.ObjectId;
 
 @Getter
 @Setter
@@ -8,8 +9,9 @@ import lombok.*;
 @AllArgsConstructor
 @Data
 
-public class CreateNovelRequest {
+public class UpdateNovelRequest {
     protected String tentruyen;
+    protected ObjectId id;
     protected String theloai;
     protected String tacgia;
     protected String url;

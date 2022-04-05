@@ -85,6 +85,11 @@ public class CommentServiceImpl implements CommentService {
 
     }
 
+    @Override
+    public void DeleteCommentByNovelUrl(String url) {
+        commentRepository.deleteAllByUrltruyen(url);
+    }
+
     public void deleteChild(Comment comment){
         List<Comment> comments = commentRepository.findAllByParentId(comment.getId());
         for (Comment temp: comments
@@ -115,5 +120,6 @@ public class CommentServiceImpl implements CommentService {
         comment.setDepth(depth+1);
         commentRepository.save(comment);
     }
+
 }
 

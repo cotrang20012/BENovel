@@ -2,6 +2,7 @@ package mobile.Service.Impl;
 
 import mobile.Service.ChapterService;
 import mobile.model.Entity.Chapter;
+import mobile.model.Entity.Novel;
 import mobile.repository.ChapterRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,5 +45,10 @@ public class ChapterServiceImpl implements ChapterService {
     public List<Object> getNameAndChapnumber(ObjectId id,Pageable pageable) {
         log.info("fetch all chapter  Novel id: "+id.toHexString());
         return chapterRepository.getTenchapAndChapNumberByDautruyenId(id,pageable);
+    }
+
+    @Override
+    public void DeleteAllChapterByNovel(Novel novel) {
+        chapterRepository.deleteAllByDautruyenId(novel);
     }
 }
