@@ -51,4 +51,9 @@ public class ChapterServiceImpl implements ChapterService {
     public void DeleteAllChapterByNovel(Novel novel) {
         chapterRepository.deleteAllByDautruyenId(novel);
     }
+
+    @Override
+    public List<Chapter> getChaptersNewUpdate(Pageable pageable) {
+        return chapterRepository.findNewUpdate(pageable);
+    }
 }

@@ -14,4 +14,5 @@ public interface ChapterService {
     int countByDauTruyen(ObjectId id);
     List<Object> getNameAndChapnumber(ObjectId id, Pageable pageable);
     void DeleteAllChapterByNovel(Novel novel);
+    List<Chapter> getChaptersNewUpdate(Pageable pageable);
 }

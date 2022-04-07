@@ -21,4 +21,6 @@ public interface ChapterRepository  extends MongoRepository<Chapter, ObjectId> {
 
     @Query(value="{ 'dautruyenId' : ?0}", fields="{ 'tenchap' : 1, 'chapnumber' : 1 }")
     List<Object> getTenchapAndChapNumberByDautruyenId(ObjectId id, Pageable pageable);
+    @Query(value = "{}",sort="{updateAt:-1}")
+    List<Chapter> findNewUpdate(Pageable pageable);
 }

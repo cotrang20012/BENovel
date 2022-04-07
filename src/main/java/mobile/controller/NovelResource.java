@@ -6,6 +6,7 @@ import mobile.Service.CommentService;
 import mobile.Service.NovelService;
 import mobile.Service.ReadingService;
 import mobile.Service.UserService;
+import mobile.mapping.ChapterMapping;
 import mobile.mapping.CommentMapping;
 import mobile.mapping.NovelMapping;
 import mobile.mapping.ReadingMapping;
@@ -13,6 +14,7 @@ import mobile.model.Entity.*;
 import mobile.model.payload.request.novel.CreateNovelRequest;
 import mobile.model.payload.request.novel.UpdateNovelRequest;
 import mobile.model.payload.request.reading.ReadingRequest;
+import mobile.model.payload.response.ChapterNewUpdateResponse;
 import mobile.model.payload.response.CommentResponse;
 import mobile.model.payload.response.ReadingResponse;
 import mobile.model.payload.response.SuccessResponse;
@@ -374,5 +376,18 @@ public class NovelResource {
         } else {
             throw new BadCredentialsException("access token is missing");
         }
+    }
+
+    @GetMapping("/novel/newupdate")
+    @ResponseBody
+    public ResponseEntity<List<ChapterNewUpdateResponse>> getNewestUpdate(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        List<Chapter> chapters = chapterService.getChaptersNewUpdate(pageable);
+        if (chapters == null) {
+            throw new RecordNotFoundException("No Chapter existing" );
+        }
+        List<ChapterNewUpdateResponse> list = ChapterMapping.getListChapterNewUpdateResponse(chapters);
+        return new ResponseEntity<List<ChapterNewUpdateResponse>>(list, HttpStatus.OK);
     }
 }
