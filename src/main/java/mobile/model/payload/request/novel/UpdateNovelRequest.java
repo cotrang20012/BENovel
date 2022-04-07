@@ -11,7 +11,7 @@ import org.bson.types.ObjectId;
 
 public class UpdateNovelRequest {
     protected String tentruyen;
-    protected ObjectId id;
+    protected String id;
     protected String theloai;
     protected String tacgia;
     protected String url;

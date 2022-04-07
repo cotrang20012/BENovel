@@ -22,6 +22,7 @@ import mobile.Handler.RecordNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
@@ -310,13 +311,14 @@ public class NovelResource {
             if (user == null)
                 throw new RecordNotFoundException("User not found");
 
-            Optional<Novel> findNovel = novelService.findById(updateNovelRequest.getId());
+            ObjectId truyenId = new ObjectId(updateNovelRequest.getId());
+            Optional<Novel> findNovel = novelService.findById(truyenId);
             if(!findNovel.isPresent()){
                 throw new RecordNotFoundException("Novel not found");
             }
 
             Novel oldNovel = findNovel.get();
-            if(oldNovel.getNguoidangtruyen().getUsername()==user.getUsername()){
+            if(oldNovel.getNguoidangtruyen().getUsername().equals(user.getUsername())){
                 NovelMapping.UpdateRequestToNovel(updateNovelRequest,oldNovel);
                 novelService.SaveNovel(oldNovel);
             }
