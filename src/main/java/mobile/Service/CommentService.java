@@ -12,4 +12,6 @@ public interface CommentService {
     Comment UpdateComment(Comment comment, String newcomment);
     Comment findById(String id);
     void deleteComment(Comment comment);
+    void DeleteCommentByNovelUrl(String url);
+
 }

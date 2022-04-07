@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @EnableMongoRepositories
 public interface CommentRepository extends MongoRepository<Comment, ObjectId> {
-
+    void deleteAllByUrltruyen(String urlTruyen);
     List<Comment> findAllByUrltruyenAndParentIdIsNull(String urlTruyen, Pageable pageable);
     List<Comment> findAllByParentId(ObjectId parentId, Pageable pageable);
     List<Comment> findAllByParentId(ObjectId parentId);

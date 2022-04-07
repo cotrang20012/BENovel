@@ -12,6 +12,7 @@ import java.util.Optional;
 @EnableMongoRepositories
 public interface NovelRepository  extends MongoRepository<Novel, ObjectId> {
     Optional<Novel> findByTentruyen(String name);
+    Optional<Novel> findBy_id(ObjectId id);
     Novel findByUrl(String url);
     List<Novel> findAllBy_idNotNull(Pageable pageable);
     List<Novel> findAllByStatus(String status,Pageable pageable);

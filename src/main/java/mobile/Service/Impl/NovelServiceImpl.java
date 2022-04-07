@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 @Service @RequiredArgsConstructor @Transactional @Slf4j
 public class NovelServiceImpl implements NovelService {
@@ -28,8 +29,6 @@ public class NovelServiceImpl implements NovelService {
         log.info("Fetching all Novels page: "+pageable.getPageNumber()+" page size: "+pageable.getPageSize());
         return novelRepository.findAllBy_idNotNull(pageable);
     }
-
-
 
     @Override
     public Novel findByName(String name) {
@@ -78,5 +77,18 @@ public class NovelServiceImpl implements NovelService {
         return novelRepository.findWithUserId(id, pageable);
     }
 
+    @Override
+    public void SaveNovel(Novel newNovel) {
+        novelRepository.save(newNovel);
+    }
 
+    @Override
+    public Optional<Novel> findById(ObjectId id) {
+        return novelRepository.findById(id);
+    }
+
+    @Override
+    public void DeleteNovel(Novel novel) {
+        novelRepository.delete(novel);
+    }
 }
