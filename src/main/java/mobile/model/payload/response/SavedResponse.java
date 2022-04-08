@@ -12,5 +12,6 @@ public class SavedResponse {
     protected String tentruyen;
     protected String hinhanh;
     protected String url;
+    protected String tacgia;
     protected ObjectId id;
 }

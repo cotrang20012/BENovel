@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import javax.transaction.Transactional;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ import mobile.repository.ReadingRepository;
 @Service @RequiredArgsConstructor @Transactional @Slf4j
 public class ReadingServiceImpl implements ReadingService{
 	final ReadingRepository readingRepository;
-	
+
 	@Override
 	public void upsertReading(Reading reading) {
 		Optional<Reading> readingDB = readingRepository.findWithParam(reading.getUser().getId(), reading.getNovel().getId());

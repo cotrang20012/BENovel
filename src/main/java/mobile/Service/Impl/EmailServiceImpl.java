@@ -24,7 +24,7 @@ public class EmailServiceImpl implements EmailService {
     @Autowired
     private JwtUtils jwtUtils;
 
-    @Value("${apps.server.host}")
+    @Value("https://tranduy26913.github.io/DoAnHDT/#/")
     private String host;
 
     @Override
@@ -37,7 +37,7 @@ public class EmailServiceImpl implements EmailService {
         MimeMessageHelper helper = null;
         try {
             helper = new MimeMessageHelper(message, "utf-8");
-            helper.setFrom("server2.noreply@gmail.com");
+            helper.setFrom("server10.noreply@gmail.com");
             helper.setTo(user.getEmail());
             helper.setSubject(subject);
             helper.setText(text,true);
@@ -57,7 +57,7 @@ public class EmailServiceImpl implements EmailService {
         MimeMessageHelper helper = null;
         try {
             helper = new MimeMessageHelper(message, "utf-8");
-            helper.setFrom("server2.noreply@gmail.com");
+            helper.setFrom("server10.noreply@gmail.com");
             helper.setTo(user.getEmail());
             helper.setSubject(subject);
             helper.setText(text,true);
@@ -92,7 +92,7 @@ public class EmailServiceImpl implements EmailService {
 
     public String templateRegisterMessage(User user) {
         String token = jwtUtils.generateEmailJwtToken(user.getUsername());
-        String validationLink = host+"api/auth/active?key="+token;
+        String validationLink = host+"active/"+token;
         String username = user.getUsername();
         String text="<!DOCTYPE HTML PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional //EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
                 "<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">\n" +

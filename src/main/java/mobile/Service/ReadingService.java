@@ -14,4 +14,5 @@ public interface ReadingService {
    void upsertReading(Reading reading);
    List<Reading> getReadings(User user);
    void deleteAllReadingByNovel(Novel novel);
+
 }

@@ -304,4 +304,47 @@ public class AuthentiactionController {
             throw  new Exception("Some error when send active email");
         }
     }
+
+    @GetMapping("checkemail")
+    public ResponseEntity<SuccessResponse> checkEmailExist(@RequestParam String email) throws Exception {
+        try{
+            if(email ==null){
+                throw new HttpMessageNotReadableException("Missing field");
+            }
+            boolean exist = userService.existsByEmail(email);
+
+            SuccessResponse response = new SuccessResponse();
+            response.setStatus(HttpStatus.OK.value());
+            response.setMessage("check email successful");
+            response.setSuccess(true);
+            response.getData().put("valid",!exist);
+
+            return new ResponseEntity<SuccessResponse>(response,HttpStatus.OK);
+        }catch (Exception ex){
+            throw new Exception("Some error when check email");
+        }
+    }
+
+
+    @GetMapping("checkusername")
+    public ResponseEntity<SuccessResponse> checkUsernameExist(@RequestParam String username) throws Exception {
+        try{
+            if(username ==null){
+                throw new HttpMessageNotReadableException("Missing field");
+            }
+            boolean exist = userService.existsByUsername(username);
+
+            SuccessResponse response = new SuccessResponse();
+            response.setStatus(HttpStatus.OK.value());
+            response.setMessage("check email successful");
+            response.setSuccess(true);
+            response.getData().put("valid",!exist);
+
+            return new ResponseEntity<SuccessResponse>(response,HttpStatus.OK);
+        }catch (Exception ex){
+            throw new Exception("Some error when check email");
+        }
+    }
+
+
 }

@@ -14,10 +14,7 @@ import mobile.model.Entity.*;
 import mobile.model.payload.request.novel.CreateNovelRequest;
 import mobile.model.payload.request.novel.UpdateNovelRequest;
 import mobile.model.payload.request.reading.ReadingRequest;
-import mobile.model.payload.response.ChapterNewUpdateResponse;
-import mobile.model.payload.response.CommentResponse;
-import mobile.model.payload.response.ReadingResponse;
-import mobile.model.payload.response.SuccessResponse;
+import mobile.model.payload.response.*;
 import mobile.security.JWT.JwtUtils;
 import mobile.Handler.MethodArgumentNotValidException;
 import mobile.Handler.RecordNotFoundException;
@@ -111,13 +108,15 @@ public class NovelResource {
 
     @GetMapping("/novel/{url}")
     @ResponseBody
-    public ResponseEntity<Novel> getNovelByName(@PathVariable String url) {
+    public ResponseEntity<NovelDetailResponse> getNovelByName(@PathVariable String url) {
 
         Novel novel = novelService.findByUrl(url);
-        if (novel == null) {
+        int sochap = chapterService.countByDauTruyen(novel.getId());
+        NovelDetailResponse novelDetailResponse = NovelMapping.EntityToNovelDetailResponse(novel,sochap);
+        if (novelDetailResponse == null) {
             throw new RecordNotFoundException("No Novel existing ");
         }
-        return new ResponseEntity<Novel>(novel, HttpStatus.OK);
+        return new ResponseEntity<NovelDetailResponse>(novelDetailResponse, HttpStatus.OK);
     }
 
     @GetMapping("/novel/{url}/chuong")
@@ -265,6 +264,30 @@ public class NovelResource {
         } else {
             throw new BadCredentialsException("access token is missing");
         }
+    }
+
+    @GetMapping("/readingsdefault") //lấy danh sách truyện được tạo theo username
+    @ResponseBody
+    public ResponseEntity<List<ReadingResponse>> getReadingsDefault(@RequestParam(defaultValue = "None") String status,
+                                                                       @RequestParam(defaultValue = "tentruyen") String sort,
+                                                                       @RequestParam(defaultValue = "0") int page,
+                                                                       @RequestParam(defaultValue = "20") int size,
+                                                                       HttpServletRequest request) {
+
+            Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
+
+            List<Novel> novelList = novelService.getNovels(pageable);
+            if (novelList == null) {
+                throw new RecordNotFoundException("No Reading existing ");
+            }
+            List<ReadingResponse> readingResponseList = new ArrayList<>();
+            for (Novel novel : novelList) {
+                int sochap = chapterService.countByDauTruyen(novel.getId());
+                readingResponseList.add(ReadingMapping.NovelToResponese(novel, sochap));
+            }
+
+            return new ResponseEntity<List<ReadingResponse>>(readingResponseList, HttpStatus.OK);
+
     }
 
     @PostMapping("novel/create") //Tạo đầu truyện

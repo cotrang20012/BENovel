@@ -12,6 +12,7 @@ public class SavedMapping {
         savedResponse.setTentruyen(saved.getNovel().getTentruyen());
         savedResponse.setHinhanh(saved.getNovel().getHinhanh());
         savedResponse.setUrl(saved.getNovel().getUrl());
+        savedResponse.setTacgia(saved.getNovel().getTacgia());
         savedResponse.setId(saved.getId());
         return savedResponse;
     }

@@ -21,5 +21,7 @@ public interface ReadingRepository  extends MongoRepository<Reading, ObjectId> {
    // @Query("{$and : [?#{{'user.$id':[0]}},?#{{'novel.$id':[1]}}]}")
     @Query("{$and : [{'user.$id':?0},{'novel.$id':?1}]}")
     Optional<Reading> findWithParam(ObjectId userId, ObjectId novelId);
+    @Query("{}")
+    List<Reading> find(Pageable pageable);
 
 }

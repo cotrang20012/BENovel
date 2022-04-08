@@ -3,6 +3,7 @@ package mobile.mapping;
 import mobile.model.Entity.Novel;
 import mobile.model.payload.request.novel.CreateNovelRequest;
 import mobile.model.payload.request.novel.UpdateNovelRequest;
+import mobile.model.payload.response.NovelDetailResponse;
 
 public class NovelMapping {
     public static Novel CreateRequestToNovel(CreateNovelRequest createNovelRequest){
@@ -14,6 +15,23 @@ public class NovelMapping {
         newNovel.setDanhgia(0);
         newNovel.setNoidung(createNovelRequest.getNoidung());
         return newNovel;
+    }
+
+    public static NovelDetailResponse EntityToNovelDetailResponse(Novel novel, int sochap){
+        NovelDetailResponse novelDetailResponse = new NovelDetailResponse();
+        novelDetailResponse.setHinhanh(novel.getHinhanh());
+        novelDetailResponse.setTentruyen(novel.getTentruyen());
+        novelDetailResponse.setTacgia(novel.getTacgia());
+        novelDetailResponse.setUrl(novel.getUrl());
+        novelDetailResponse.setDanhgia(novel.getDanhgia());
+        novelDetailResponse.setNoidung(novel.getNoidung());
+        novelDetailResponse.setNguoidangtruyen(novel.getNguoidangtruyen().getTenhienthi());
+        novelDetailResponse.setLuotdoc(novel.getLuotdoc());
+        novelDetailResponse.setSoluongdanhgia(novel.getSoluongdanhgia());
+        novelDetailResponse.setSochap(sochap);
+        novelDetailResponse.setTheloai(novel.getTheloai());
+        novelDetailResponse.setTrangthai(novel.getTrangthai());
+        return novelDetailResponse;
     }
 
     public static void UpdateRequestToNovel(UpdateNovelRequest updateNovelRequest, Novel oldNovel){
