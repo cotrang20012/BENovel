@@ -15,4 +15,5 @@ public interface ChapterService {
     List<Object> getNameAndChapnumber(ObjectId id, Pageable pageable);
     void DeleteAllChapterByNovel(Novel novel);
     List<Chapter> getChaptersNewUpdate(Pageable pageable);
+    void SaveChapter(Chapter chapter);
 }

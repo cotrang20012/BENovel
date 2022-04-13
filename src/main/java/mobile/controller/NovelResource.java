@@ -11,6 +11,7 @@ import mobile.mapping.CommentMapping;
 import mobile.mapping.NovelMapping;
 import mobile.mapping.ReadingMapping;
 import mobile.model.Entity.*;
+import mobile.model.payload.request.chapter.CreateChapterRequest;
 import mobile.model.payload.request.novel.CreateNovelRequest;
 import mobile.model.payload.request.novel.UpdateNovelRequest;
 import mobile.model.payload.request.reading.ReadingRequest;
@@ -412,5 +413,53 @@ public class NovelResource {
         }
         List<ChapterNewUpdateResponse> list = ChapterMapping.getListChapterNewUpdateResponse(chapters);
         return new ResponseEntity<List<ChapterNewUpdateResponse>>(list, HttpStatus.OK);
+    }
+
+    @PostMapping("/novel/chuong/create")
+    @ResponseBody
+    public ResponseEntity<SuccessResponse> CreateChapter(@RequestBody CreateChapterRequest createChapterRequest, HttpServletRequest request){
+        String authorizationHeader = request.getHeader(AUTHORIZATION);
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            String accessToken = authorizationHeader.substring("Bearer ".length());
+
+            if (jwtUtils.validateExpiredToken(accessToken) == true) {
+                throw new BadCredentialsException("access token is  expired");
+            }
+
+            User user = userService.findByUsername(jwtUtils.getUserNameFromJwtToken(accessToken));
+
+            if (user == null)
+                throw new RecordNotFoundException("User not found");
+
+            if(createChapterRequest.getContent().length()<10){
+                throw new BadCredentialsException("Nội dung phải dài hơn 10 ký tự");
+            }
+            Novel novel = novelService.findByUrl(createChapterRequest.getUrl());
+            if(novel == null){
+                throw new RecordNotFoundException("Novel not found");
+            }
+
+            if(novel.getNguoidangtruyen().getUsername().equals(user.getUsername())){
+                int chapnumber = chapterService.countByDauTruyen(novel.getId());
+                String tenchap = "Chương "+chapnumber+": " +createChapterRequest.getTenchap();
+                Chapter newChapter = new Chapter();
+                newChapter.setDautruyenId(novel);
+                newChapter.setContent(createChapterRequest.getContent());
+                newChapter.setChapnumber(chapnumber);
+                newChapter.setTenchap(tenchap);
+                chapterService.SaveChapter(newChapter);
+            }
+            else{
+                throw new BadCredentialsException("Can't edit other user novel!!!!");
+            }
+
+            SuccessResponse response = new SuccessResponse();
+            response.setStatus(HttpStatus.OK.value());
+            response.setMessage("Create chapter success!!");
+            response.setSuccess(true);
+            return new ResponseEntity<SuccessResponse>(response,HttpStatus.OK);
+        } else {
+            throw new BadCredentialsException("access token is missing");
+        }
     }
 }

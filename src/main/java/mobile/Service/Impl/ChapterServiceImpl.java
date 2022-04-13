@@ -56,4 +56,9 @@ public class ChapterServiceImpl implements ChapterService {
     public List<Chapter> getChaptersNewUpdate(Pageable pageable) {
         return chapterRepository.findNewUpdate(pageable);
     }
+
+    @Override
+    public void SaveChapter(Chapter chapter) {
+        chapterRepository.save(chapter);
+    }
 }
