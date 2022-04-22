@@ -61,4 +61,9 @@ public class ChapterServiceImpl implements ChapterService {
     public void SaveChapter(Chapter chapter) {
         chapterRepository.save(chapter);
     }
+
+    @Override
+    public void DeleteChapter(Chapter chapter) {
+        chapterRepository.delete(chapter);
+    }
 }
