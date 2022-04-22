@@ -11,6 +11,9 @@ import mobile.mapping.CommentMapping;
 import mobile.mapping.NovelMapping;
 import mobile.mapping.ReadingMapping;
 import mobile.model.Entity.*;
+import mobile.model.payload.request.chapter.CreateChapterRequest;
+import mobile.model.payload.request.chapter.DeleteChapterRequest;
+import mobile.model.payload.request.chapter.UpdateChapterRequest;
 import mobile.model.payload.request.novel.CreateNovelRequest;
 import mobile.model.payload.request.novel.UpdateNovelRequest;
 import mobile.model.payload.request.reading.ReadingRequest;
@@ -67,7 +70,7 @@ public class NovelResource {
             novelList = novelService.findAllByStatus(status, pageable);
 
         if (novelList == null) {
-            throw new RecordNotFoundException("No Novel existing ");
+            throw new RecordNotFoundException("Không tìm thấy truyện");
         }
         return new ResponseEntity<List<Novel>>(novelList, HttpStatus.OK);
     }
@@ -82,7 +85,7 @@ public class NovelResource {
         novelList = novelService.SearchByType(theloai, pageable);
 
         if (novelList == null) {
-            throw new RecordNotFoundException("No Novel existing ");
+            throw new RecordNotFoundException("Không tìm thấy truyện");
         }
         return new ResponseEntity<List<Novel>>(novelList, HttpStatus.OK);
     }
@@ -101,7 +104,7 @@ public class NovelResource {
         }
 
         if (novelList == null) {
-            throw new RecordNotFoundException("No Novel existing ");
+            throw new RecordNotFoundException("Không tìm thấy truyện");
         }
         return new ResponseEntity<List<Novel>>(novelList, HttpStatus.OK);
     }
@@ -114,7 +117,7 @@ public class NovelResource {
         int sochap = chapterService.countByDauTruyen(novel.getId());
         NovelDetailResponse novelDetailResponse = NovelMapping.EntityToNovelDetailResponse(novel,sochap);
         if (novelDetailResponse == null) {
-            throw new RecordNotFoundException("No Novel existing ");
+            throw new RecordNotFoundException("Không tìm thấy truyện");
         }
         return new ResponseEntity<NovelDetailResponse>(novelDetailResponse, HttpStatus.OK);
     }
@@ -127,12 +130,12 @@ public class NovelResource {
 
         Novel novel = novelService.findByUrl(url);
         if (novel == null) {
-            throw new RecordNotFoundException("Not found novel: " + url);
+            throw new RecordNotFoundException("Không tìm thấy truyện: " + url);
         }
 
         List<Chapter> chapterList = chapterService.findByDauTruyen(novel.getId(), pageable);
         if (chapterList == null) {
-            throw new RecordNotFoundException("No Chapter existing");
+            throw new RecordNotFoundException("Không có chương nào được đăng");
         }
         return new ResponseEntity<List<Chapter>>(chapterList, HttpStatus.OK);
     }
@@ -145,12 +148,12 @@ public class NovelResource {
 
         Novel novel = novelService.findByUrl(url);
         if (novel == null) {
-            throw new RecordNotFoundException("Not found novel: " + url);
+            throw new RecordNotFoundException("Không tìm thấy truyện: " + url);
         }
 
         List<Object> chapterList = chapterService.getNameAndChapnumber(novel.getId(), pageable);
         if (chapterList == null) {
-            throw new RecordNotFoundException("No Chapter existing");
+            throw new RecordNotFoundException("Không có chương nào được đăng");
         }
         return new ResponseEntity<List<Object>>(chapterList, HttpStatus.OK);
     }
@@ -161,7 +164,7 @@ public class NovelResource {
 
         Novel novel = novelService.findByUrl(url);
         if (novel == null) {
-            throw new RecordNotFoundException("Not found novel: " + url);
+            throw new RecordNotFoundException("Không tìm thấy truyện: " + url);
         }
 
         int chaptolal = chapterService.countByDauTruyen(novel.getId());
@@ -177,7 +180,7 @@ public class NovelResource {
         Novel novel = novelService.findByUrl(url);
         Chapter chapter = chapterService.findByDauTruyenAndChapterNumber(novel.getId(), chapterNumber);
         if (chapter == null) {
-            throw new RecordNotFoundException("No Chapter existing ");
+            throw new RecordNotFoundException("Không có chương được yêu cầu");
         }
 
         String authorizationHeader = request.getHeader(AUTHORIZATION);
@@ -206,7 +209,7 @@ public class NovelResource {
         List<Novel> novelList = novelService.SearchByTacgia(tacgia, pageable);
 
         if (novelList == null) {
-            throw new RecordNotFoundException("No Novel existing ");
+            throw new RecordNotFoundException("Không tìm thấy truyện");
         }
         return new ResponseEntity<List<Novel>>(novelList, HttpStatus.OK);
     }
@@ -224,12 +227,12 @@ public class NovelResource {
         System.out.println(user.getId().toHexString());
         List<Novel> novelList = novelService.SearchByNguoidangtruyen(user.getId(), pageable);
         if (novelList == null) {
-            throw new RecordNotFoundException("No Novel existing ");
+            throw new RecordNotFoundException("Không tìm thấy truyện nào được đăng");
         }
         return new ResponseEntity<List<Novel>>(novelList, HttpStatus.OK);
     }
 
-    @GetMapping("/readings") //lấy danh sách truyện được tạo theo username
+    @GetMapping("/readings") //lấy danh sách truyện mà người dùng đã đọc tạo theo username
     @ResponseBody
     public ResponseEntity<List<ReadingResponse>> getReadingsByUsername(@RequestParam(defaultValue = "None") String status,
                                                                        @RequestParam(defaultValue = "tentruyen") String sort,
@@ -241,18 +244,18 @@ public class NovelResource {
             String accessToken = authorizationHeader.substring("Bearer ".length());
 
             if (jwtUtils.validateExpiredToken(accessToken) == true) {
-                throw new BadCredentialsException("access token is  expired");
+                throw new BadCredentialsException("access token đã hết hạn");
             }
 
             User user = userService.findByUsername(jwtUtils.getUserNameFromJwtToken(accessToken));
             Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
 
             if (user == null)
-                throw new RecordNotFoundException("User not found");
+                throw new RecordNotFoundException("Không tìm thấy người dùng");
 
             List<Reading> readingList = readingService.getReadings(user);
             if (readingList == null) {
-                throw new RecordNotFoundException("No Reading existing ");
+                throw new RecordNotFoundException("Người dùng chưa đọc truyện nào");
             }
             List<ReadingResponse> readingResponseList = new ArrayList<>();
             for (Reading reading : readingList) {
@@ -262,7 +265,7 @@ public class NovelResource {
 
             return new ResponseEntity<List<ReadingResponse>>(readingResponseList, HttpStatus.OK);
         } else {
-            throw new BadCredentialsException("access token is missing");
+            throw new BadCredentialsException("Không tìm thấy access token");
         }
     }
 
@@ -278,7 +281,7 @@ public class NovelResource {
 
             List<Novel> novelList = novelService.getNovels(pageable);
             if (novelList == null) {
-                throw new RecordNotFoundException("No Reading existing ");
+                throw new RecordNotFoundException("Không có tìm thấy truyện");
             }
             List<ReadingResponse> readingResponseList = new ArrayList<>();
             for (Novel novel : novelList) {
@@ -298,13 +301,13 @@ public class NovelResource {
             String accessToken = authorizationHeader.substring("Bearer ".length());
 
             if (jwtUtils.validateExpiredToken(accessToken) == true) {
-                throw new BadCredentialsException("access token is  expired");
+                throw new BadCredentialsException("access token đã hết hạn");
             }
 
             User user = userService.findByUsername(jwtUtils.getUserNameFromJwtToken(accessToken));
 
             if (user == null)
-                throw new RecordNotFoundException("User not found");
+                throw new RecordNotFoundException("Không tìm thấy người dùng");
 
             Novel newNovel = NovelMapping.CreateRequestToNovel(createNovelRequest);
             newNovel.setNguoidangtruyen(user);
@@ -313,11 +316,11 @@ public class NovelResource {
 
             SuccessResponse response = new SuccessResponse();
             response.setStatus(HttpStatus.OK.value());
-            response.setMessage("Create novel success!!");
+            response.setMessage("Đăng truyện mới thành công");
             response.setSuccess(true);
             return new ResponseEntity<SuccessResponse>(response,HttpStatus.OK);
         } else {
-            throw new BadCredentialsException("access token is missing");
+            throw new BadCredentialsException("Không tìm thấy access token");
         }
     }
     @PutMapping("novel/edit")//Update đầu truyện
@@ -328,18 +331,18 @@ public class NovelResource {
             String accessToken = authorizationHeader.substring("Bearer ".length());
 
             if (jwtUtils.validateExpiredToken(accessToken) == true) {
-                throw new BadCredentialsException("access token is  expired");
+                throw new BadCredentialsException("access token đã hết hạn");
             }
 
             User user = userService.findByUsername(jwtUtils.getUserNameFromJwtToken(accessToken));
 
             if (user == null)
-                throw new RecordNotFoundException("User not found");
+                throw new RecordNotFoundException("Không tìm thấy người dùng");
 
             ObjectId truyenId = new ObjectId(updateNovelRequest.getId());
             Optional<Novel> findNovel = novelService.findById(truyenId);
             if(!findNovel.isPresent()){
-                throw new RecordNotFoundException("Novel not found");
+                throw new RecordNotFoundException("Không tìm thấy truyện");
             }
 
             Novel oldNovel = findNovel.get();
@@ -348,16 +351,16 @@ public class NovelResource {
                 novelService.SaveNovel(oldNovel);
             }
             else{
-                throw new BadCredentialsException("Can't edit other user novel!!!!");
+                throw new BadCredentialsException("Không thể chỉnh sửa truyện của người khác");
             }
 
             SuccessResponse response = new SuccessResponse();
             response.setStatus(HttpStatus.OK.value());
-            response.setMessage("Update novel success!!");
+            response.setMessage("Cập nhật truyện thành công");
             response.setSuccess(true);
             return new ResponseEntity<SuccessResponse>(response,HttpStatus.OK);
         } else {
-            throw new BadCredentialsException("access token is missing");
+            throw new BadCredentialsException("Không tìm thấy access token");
         }
     }
     @DeleteMapping("/{url}")//Delete đầu truyện, sẽ delete chapter, comment, reading liên kết cùng
@@ -368,17 +371,17 @@ public class NovelResource {
             String accessToken = authorizationHeader.substring("Bearer ".length());
 
             if (jwtUtils.validateExpiredToken(accessToken) == true) {
-                throw new BadCredentialsException("access token is  expired");
+                throw new BadCredentialsException("access token đã hết hạn");
             }
 
             User user = userService.findByUsername(jwtUtils.getUserNameFromJwtToken(accessToken));
 
             if (user == null)
-                throw new RecordNotFoundException("User not found");
+                throw new RecordNotFoundException("Không tìm thấy người dùng");
 
             Novel findNovel = novelService.findByUrl(url);
             if(findNovel == null ){
-                throw new RecordNotFoundException("Novel not found");
+                throw new RecordNotFoundException("Không tìm thấy truyện");
             }
 
             if(findNovel.getNguoidangtruyen().getUsername().equals(user.getUsername())){
@@ -388,16 +391,16 @@ public class NovelResource {
                 novelService.DeleteNovel(findNovel);
             }
             else{
-                throw new BadCredentialsException("Can't edit other user novel!!!!");
+                throw new BadCredentialsException("Không thể chỉnh sửa truyện của người khác");
             }
 
             SuccessResponse response = new SuccessResponse();
             response.setStatus(HttpStatus.OK.value());
-            response.setMessage("Delete novel success!!");
+            response.setMessage("Xóa truyện thành công");
             response.setSuccess(true);
             return new ResponseEntity<SuccessResponse>(response,HttpStatus.OK);
         } else {
-            throw new BadCredentialsException("access token is missing");
+            throw new BadCredentialsException("Không có access token");
         }
     }
 
@@ -408,9 +411,145 @@ public class NovelResource {
 
         List<Chapter> chapters = chapterService.getChaptersNewUpdate(pageable);
         if (chapters == null) {
-            throw new RecordNotFoundException("No Chapter existing" );
+            throw new RecordNotFoundException("Truyện không có chương nào !!!");
         }
         List<ChapterNewUpdateResponse> list = ChapterMapping.getListChapterNewUpdateResponse(chapters);
         return new ResponseEntity<List<ChapterNewUpdateResponse>>(list, HttpStatus.OK);
+    }
+
+    @PostMapping("/novel/chuong/create")
+    @ResponseBody
+    public ResponseEntity<SuccessResponse> CreateChapter(@RequestBody CreateChapterRequest createChapterRequest, HttpServletRequest request){
+        String authorizationHeader = request.getHeader(AUTHORIZATION);
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            String accessToken = authorizationHeader.substring("Bearer ".length());
+
+            if (jwtUtils.validateExpiredToken(accessToken) == true) {
+                throw new BadCredentialsException("access token đã hết hạn");
+            }
+
+            User user = userService.findByUsername(jwtUtils.getUserNameFromJwtToken(accessToken));
+
+            if (user == null)
+                throw new RecordNotFoundException("Không tìm thấy người dùng");
+
+            if(createChapterRequest.getContent().length()<10){
+                throw new BadCredentialsException("Nội dung phải dài hơn 10 ký tự");
+            }
+            Novel novel = novelService.findByUrl(createChapterRequest.getUrl());
+            if(novel == null){
+                throw new RecordNotFoundException("Không tìm thấy truyện");
+            }
+
+            if(novel.getNguoidangtruyen().getUsername().equals(user.getUsername())){
+                int chapnumber = chapterService.countByDauTruyen(novel.getId());
+                String tenchap = "Chương "+chapnumber+": " +createChapterRequest.getTenchap();
+                Chapter newChapter = new Chapter();
+                newChapter.setDautruyenId(novel);
+                newChapter.setContent(createChapterRequest.getContent());
+                newChapter.setChapnumber(chapnumber);
+                newChapter.setTenchap(tenchap);
+                chapterService.SaveChapter(newChapter);
+            }
+            else{
+                throw new BadCredentialsException("Không thể chỉnh sửa truyện của người khác");
+            }
+
+            SuccessResponse response = new SuccessResponse();
+            response.setStatus(HttpStatus.OK.value());
+            response.setMessage("Đăng chương mới thành công");
+            response.setSuccess(true);
+            return new ResponseEntity<SuccessResponse>(response,HttpStatus.OK);
+        } else {
+            throw new BadCredentialsException("Không tìm thấy access token");
+        }
+    }
+    @PutMapping("/novel/chuong/edit")
+    @ResponseBody
+    public ResponseEntity<SuccessResponse> UpdateChapter(@RequestBody UpdateChapterRequest updateChapterRequest, HttpServletRequest request){
+        String authorizationHeader = request.getHeader(AUTHORIZATION);
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            String accessToken = authorizationHeader.substring("Bearer ".length());
+
+            if (jwtUtils.validateExpiredToken(accessToken) == true) {
+                throw new BadCredentialsException("access token đã hết hạn");
+            }
+
+            User user = userService.findByUsername(jwtUtils.getUserNameFromJwtToken(accessToken));
+
+            if (user == null)
+                throw new RecordNotFoundException("Không tìm thấy người dùng");
+
+            if(updateChapterRequest.getContent().length()<10){
+                throw new BadCredentialsException("Nội dung phải dài hơn 10 ký tự");
+            }
+            Novel novel = novelService.findByUrl(updateChapterRequest.getUrl());
+            if(novel == null){
+                throw new RecordNotFoundException("Không tìm thấy truyện");
+            }
+            Chapter chapter = chapterService.findByDauTruyenAndChapterNumber(novel.getId(), updateChapterRequest.getChapnumber());
+            if(chapter == null){
+                throw new RecordNotFoundException("Không tìm thấy chương cần chỉnh sửa");
+            }
+            if(novel.getNguoidangtruyen().getUsername().equals(user.getUsername())){
+                String tenchap = "Chương "+updateChapterRequest.getChapnumber()+": " +updateChapterRequest.getTenchap();
+                chapter.setTenchap(tenchap);
+                chapter.setContent(updateChapterRequest.getContent());
+                chapterService.SaveChapter(chapter);
+            }
+            else{
+                throw new BadCredentialsException("Không thể chỉnh sửa truyện của người khác");
+            }
+
+            SuccessResponse response = new SuccessResponse();
+            response.setStatus(HttpStatus.OK.value());
+            response.setMessage("Cập nhật chương thành công");
+            response.setSuccess(true);
+            return new ResponseEntity<SuccessResponse>(response,HttpStatus.OK);
+        } else {
+            throw new BadCredentialsException("Không tìm thấy access token");
+        }
+    }
+
+    @DeleteMapping("/novel/chuong")
+    @ResponseBody
+    public ResponseEntity<SuccessResponse> DeleteChapter(@RequestBody DeleteChapterRequest deleteChapterRequest, HttpServletRequest request){
+        String authorizationHeader = request.getHeader(AUTHORIZATION);
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            String accessToken = authorizationHeader.substring("Bearer ".length());
+
+            if (jwtUtils.validateExpiredToken(accessToken) == true) {
+                throw new BadCredentialsException("access token đã hết hạn");
+            }
+
+            User user = userService.findByUsername(jwtUtils.getUserNameFromJwtToken(accessToken));
+
+            if (user == null)
+                throw new RecordNotFoundException("Không tìm thấy người dùng");
+
+            Novel novel = novelService.findByUrl(deleteChapterRequest.getUrl());
+            if(novel == null){
+                throw new RecordNotFoundException("Không tìm thấy truyện");
+            }
+            Chapter chapter = chapterService.findByDauTruyenAndChapterNumber(novel.getId(), deleteChapterRequest.getChapnumber());
+            if(chapter == null){
+                throw new RecordNotFoundException("Không tìm thấy chương cần chỉnh sửa");
+            }
+
+            if(novel.getNguoidangtruyen().getUsername().equals(user.getUsername())){
+                chapterService.DeleteChapter(chapter);
+            }
+            else{
+                throw new BadCredentialsException("Không thể chỉnh sửa truyện của người khác");
+            }
+
+            SuccessResponse response = new SuccessResponse();
+            response.setStatus(HttpStatus.OK.value());
+            response.setMessage("Xóa chương thành công");
+            response.setSuccess(true);
+            return new ResponseEntity<SuccessResponse>(response,HttpStatus.OK);
+        } else {
+            throw new BadCredentialsException("Không tìm thấy access token");
+        }
     }
 }
