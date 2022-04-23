@@ -13,6 +13,6 @@ public class UpdateRoleToUserRequest {
     @NotBlank
     private String username;
 
-    @NotBlank
-    private List<String> roleList;
+
+    private List<String> roles;
 }

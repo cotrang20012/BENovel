@@ -44,15 +44,15 @@ public class AdminResource {
     @ResponseBody
     public ResponseEntity<List<User>> getUsers() {
         List<User> userList = userService.getUsers();
-        if(userList == null) {
-            throw new RecordNotFoundException("No User existing " );
+        if (userList == null) {
+            throw new RecordNotFoundException("No User existing ");
         }
         return new ResponseEntity<List<User>>(userList, HttpStatus.OK);
     }
 
     @PostMapping("user/save")
     @ResponseBody
-    public ResponseEntity<SuccessResponse> saveUser(@RequestBody @Valid RegisterAdminRequest user, BindingResult errors) throws  Exception {
+    public ResponseEntity<SuccessResponse> saveUser(@RequestBody @Valid RegisterAdminRequest user, BindingResult errors) throws Exception {
         if (errors.hasErrors()) {
             throw new MethodArgumentNotValidException(errors);
         }
@@ -63,34 +63,34 @@ public class AdminResource {
             LOGGER.info("Inside addIssuer...");
         }
 
-        if(userService.existsByEmail(user.getEmail())){
-            return SendErrorValid("email",user.getEmail());
+        if (userService.existsByEmail(user.getEmail())) {
+            return SendErrorValid("email", user.getEmail());
         }
 
-        if(userService.existsByUsername(user.getUsername())){
-            return SendErrorValid("username",user.getUsername());
+        if (userService.existsByUsername(user.getUsername())) {
+            return SendErrorValid("username", user.getUsername());
         }
 
-        try{
+        try {
 
             User newUser = UserMapping.registerToEntity(user);
             newUser.setActive(true);
-            userService.saveUser(newUser,user.getRoles());
+            userService.saveUser(newUser, user.getRoles());
             SuccessResponse response = new SuccessResponse();
             response.setStatus(HttpStatus.OK.value());
             response.setMessage("add user successful");
             response.setSuccess(true);
-            response.getData().put("email",user.getEmail());
-            return new ResponseEntity<SuccessResponse>(response,HttpStatus.OK);
+            response.getData().put("email", user.getEmail());
+            return new ResponseEntity<SuccessResponse>(response, HttpStatus.OK);
 
-        }catch(Exception ex){
+        } catch (Exception ex) {
             throw new Exception("Can't create your account");
         }
     }
 
     @PutMapping("user/active")
     @ResponseBody
-    public ResponseEntity<SuccessResponse> activeUser(@RequestBody Map<String,String> json, BindingResult errors) throws  Exception {
+    public ResponseEntity<SuccessResponse> activeUser(@RequestBody Map<String, String> json, BindingResult errors) throws Exception {
         if (errors.hasErrors()) {
             throw new MethodArgumentNotValidException(errors);
         }
@@ -102,26 +102,26 @@ public class AdminResource {
         }
         User user = userService.findByUsername(json.get("username"));
 
-        if(user == null){
+        if (user == null) {
             throw new RecordNotFoundException("User not exist");
         }
         user.setActive(true);
-        try{
+        try {
             userService.saveUser(user);
             SuccessResponse response = new SuccessResponse();
             response.setStatus(HttpStatus.OK.value());
             response.setMessage("Active user successful");
             response.setSuccess(true);
-            response.getData().put("username",user.getUsername());
-            return new ResponseEntity<SuccessResponse>(response,HttpStatus.OK);
+            response.getData().put("username", user.getUsername());
+            return new ResponseEntity<SuccessResponse>(response, HttpStatus.OK);
 
-        }catch(Exception ex){
+        } catch (Exception ex) {
             throw new Exception("Can't active account");
         }
     }
     @PutMapping("user/inactive")
     @ResponseBody
-    public ResponseEntity<SuccessResponse> inactiveUser(@RequestBody Map<String,String> json, BindingResult errors) throws  Exception {
+    public ResponseEntity<SuccessResponse> inactiveUser(@RequestBody Map<String, String> json, BindingResult errors) throws Exception {
         if (errors.hasErrors()) {
             throw new MethodArgumentNotValidException(errors);
         }
@@ -133,27 +133,27 @@ public class AdminResource {
         }
         User user = userService.findByUsername(json.get("username"));
 
-        if(user == null){
+        if (user == null) {
             throw new RecordNotFoundException("User not exist");
         }
         user.setActive(false);
-        try{
+        try {
             userService.saveUser(user);
             SuccessResponse response = new SuccessResponse();
             response.setStatus(HttpStatus.OK.value());
             response.setMessage("Inactive user successful");
             response.setSuccess(true);
-            response.getData().put("username",user.getUsername());
-            return new ResponseEntity<SuccessResponse>(response,HttpStatus.OK);
+            response.getData().put("username", user.getUsername());
+            return new ResponseEntity<SuccessResponse>(response, HttpStatus.OK);
 
-        }catch(Exception ex){
+        } catch (Exception ex) {
             throw new Exception("Can't inactive account");
         }
     }
 
     @PostMapping("role/addtouser")
     @ResponseBody
-    public ResponseEntity<SuccessResponse> addRoleToUser(@RequestBody @Valid RoleToUserRequest roleForm, BindingResult errors) throws  Exception  {
+    public ResponseEntity<SuccessResponse> addRoleToUser(@RequestBody @Valid RoleToUserRequest roleForm, BindingResult errors) throws Exception {
         if (errors.hasErrors()) {
             throw new MethodArgumentNotValidException(errors);
         }
@@ -165,32 +165,32 @@ public class AdminResource {
             LOGGER.info("Inside addIssuer...");
         }
 
-        if(!userService.existsByEmail(roleForm.getEmail())){
+        if (!userService.existsByEmail(roleForm.getEmail())) {
             throw new HttpMessageNotReadableException("User is not exist");
         }
 
-        if(roleService.existsByRoleName(roleForm.getRoleName())){
+        if (roleService.existsByRoleName(roleForm.getRoleName())) {
             throw new HttpMessageNotReadableException("Role is not exist");
         }
-        try{
-        userService.addRoleToUser(roleForm.getEmail(),roleForm.getRoleName());
+        try {
+            userService.addRoleToUser(roleForm.getEmail(), roleForm.getRoleName());
 
-        SuccessResponse response = new SuccessResponse();
-        response.setStatus(HttpStatus.OK.value());
-        response.setMessage("add user successful");
-        response.setSuccess(true);
-        response.getData().put("email",roleForm.getEmail());
-        response.getData().put("role",roleForm.getRoleName());
-        return new ResponseEntity<SuccessResponse>(response,HttpStatus.OK);
+            SuccessResponse response = new SuccessResponse();
+            response.setStatus(HttpStatus.OK.value());
+            response.setMessage("add user successful");
+            response.setSuccess(true);
+            response.getData().put("email", roleForm.getEmail());
+            response.getData().put("role", roleForm.getRoleName());
+            return new ResponseEntity<SuccessResponse>(response, HttpStatus.OK);
 
-        }catch(Exception ex){
+        } catch (Exception ex) {
             throw new Exception("Can't add role to account");
         }
     }
 
-    @PostMapping("role/updatetouser")
+    @PutMapping("role/updatetouser")
     @ResponseBody
-    public ResponseEntity<SuccessResponse> addRoleToUser(@RequestBody @Valid UpdateRoleToUserRequest roleListForm, BindingResult errors) throws  Exception  {
+    public ResponseEntity<SuccessResponse> updateRoleToUser(@RequestBody @Valid UpdateRoleToUserRequest roleListForm, BindingResult errors) throws Exception {
         if (errors.hasErrors()) {
             throw new MethodArgumentNotValidException(errors);
         }
@@ -202,29 +202,54 @@ public class AdminResource {
             LOGGER.info("Inside addIssuer...");
         }
         User user = userService.findByUsername(roleListForm.getUsername());
-        if(user==null){
+        if (user == null) {
             throw new HttpMessageNotReadableException("User is not exist");
         }
 
-        try{
-            userService.updateRoleToUser(user,roleListForm.getRoleList());
+        try {
+            userService.updateRoleToUser(user, roleListForm.getRoles());
             SuccessResponse response = new SuccessResponse();
             response.setStatus(HttpStatus.OK.value());
             response.setMessage("add user successful");
             response.setSuccess(true);
-            response.getData().put("username",roleListForm.getUsername());
-            return new ResponseEntity<SuccessResponse>(response,HttpStatus.OK);
+            response.getData().put("username", roleListForm.getUsername());
+            return new ResponseEntity<SuccessResponse>(response, HttpStatus.OK);
 
-        }catch(Exception ex){
+        } catch (Exception ex) {
             throw new Exception("Can't add role to account");
         }
     }
 
-    private ResponseEntity SendErrorValid(String field, String message){
+    @DeleteMapping("user")
+    @ResponseBody
+    public ResponseEntity<SuccessResponse> deleteAccount(@RequestParam String username) throws Exception{
+        if(username==null){
+            throw new HttpMessageNotReadableException("Missing field");
+        }
+           try{
+               User user = userService.findByUsername(username);
+               if(user==null){
+                   throw new RecordNotFoundException("Không tìm thấy tài khoản");
+               }
+               User userDel = userService.deleteUser(username);
+               SuccessResponse response = new SuccessResponse();
+               response.setStatus(HttpStatus.OK.value());
+               response.setMessage("Delete user successful");
+               response.setSuccess(true);
+               response.getData().put("username", username);
+               return new ResponseEntity<SuccessResponse>(response, HttpStatus.OK);
+           }catch (Exception ex){
+               throw new Exception("Xoá tài khoản thất bại");
+           }
+
+    }
+
+
+    private ResponseEntity SendErrorValid(String field, String message) {
         ErrorResponseMap errorResponseMap = new ErrorResponseMap();
-        Map<String,String> temp =new HashMap<>();
+        Map<String, String> temp = new HashMap<>();
         errorResponseMap.setMessage("Field already taken");
-        temp.put(field,message+" has already used");
+        temp.put(field, message + " has already used");
         errorResponseMap.setStatus(HttpStatus.BAD_REQUEST.value());
         errorResponseMap.setDetails(temp);
         return ResponseEntity
