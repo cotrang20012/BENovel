@@ -24,7 +24,7 @@ public class EmailServiceImpl implements EmailService {
     @Autowired
     private JwtUtils jwtUtils;
 
-    @Value("https://tranduy26913.github.io/DoAnHDT/#/")
+    @Value("https://tranduy26913.github.io/DoAnHDT_WebDocTruyenChu/#/")
     private String host;
 
     @Override
