@@ -36,7 +36,7 @@ public class CommentMapping {
         commentResponse.setTenhienthi(comment.getUser().getTenhienthi());
         commentResponse.setUsername(comment.getUser().getUsername());
         commentResponse.setImage(comment.getUser().getImage());
-        commentResponse.setDate(comment.getUser().getCreatedate());
+        commentResponse.setDate(comment.getCreatedate());
         for(Comment temp : comment.getListChild()){
             commentResponse.getListChild().add(EntityToResponse(temp));
         }

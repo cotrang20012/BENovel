@@ -25,7 +25,8 @@ public class Comment {
     protected int depth;
     protected String content;
     protected Date createdate;
-
+    public Date getCreatedate() {return createdate;}
+    public void setCreatedate(Date createdate) {this.createdate = createdate;}
     public Comment() {
     }
 
