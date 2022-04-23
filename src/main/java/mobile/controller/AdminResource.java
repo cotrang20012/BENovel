@@ -4,6 +4,7 @@ import mobile.Service.RoleService;
 import mobile.Service.UserService;
 import mobile.mapping.UserMapping;
 import mobile.model.Entity.User;
+import mobile.model.payload.request.user.DeleteUserRequest;
 import mobile.model.payload.request.user.RegisterAdminRequest;
 import mobile.model.payload.request.user.RoleToUserRequest;
 import mobile.Handler.HttpMessageNotReadableException;
@@ -222,21 +223,21 @@ public class AdminResource {
 
     @DeleteMapping("user")
     @ResponseBody
-    public ResponseEntity<SuccessResponse> deleteAccount(@RequestParam String username) throws Exception{
-        if(username==null){
+    public ResponseEntity<SuccessResponse> deleteAccount(@RequestBody @Valid DeleteUserRequest deleteUserRequest) throws Exception{
+        if(deleteUserRequest.getUsername()==null){
             throw new HttpMessageNotReadableException("Missing field");
         }
            try{
-               User user = userService.findByUsername(username);
+               User user = userService.findByUsername(deleteUserRequest.getUsername());
                if(user==null){
                    throw new RecordNotFoundException("Không tìm thấy tài khoản");
                }
-               User userDel = userService.deleteUser(username);
+               User userDel = userService.deleteUser(deleteUserRequest.getUsername());
                SuccessResponse response = new SuccessResponse();
                response.setStatus(HttpStatus.OK.value());
                response.setMessage("Delete user successful");
                response.setSuccess(true);
-               response.getData().put("username", username);
+               response.getData().put("username", deleteUserRequest.getUsername());
                return new ResponseEntity<SuccessResponse>(response, HttpStatus.OK);
            }catch (Exception ex){
                throw new Exception("Xoá tài khoản thất bại");

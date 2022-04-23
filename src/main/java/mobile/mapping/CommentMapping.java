@@ -26,7 +26,7 @@ public class CommentMapping {
         CommentResponse commentResponse = new CommentResponse();
         commentResponse.setId(comment.getId().toString());
         if(comment.getParentId() !=null)
-            commentResponse.setParentId(comment.getParentId().toString());
+            commentResponse.setParentId(comment.getParentId().toHexString());
         else
             commentResponse.setParentId(null);
         commentResponse.setUrltruyen(comment.getUrltruyen());
