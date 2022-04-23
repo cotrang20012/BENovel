@@ -160,7 +160,7 @@ public class SavedResource {
             throw new BadCredentialsException("access token is missing");
         }
     }
-    @DeleteMapping("/")
+    @DeleteMapping("")
     @ResponseBody
     public ResponseEntity<SuccessResponse> deleteSaved(@RequestBody @Valid SavedRequest savedRequest
             , HttpServletRequest request){
