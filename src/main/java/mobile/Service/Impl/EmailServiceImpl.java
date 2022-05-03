@@ -1,23 +1,37 @@
 package mobile.Service.Impl;
 
+
+
+import com.sun.mail.smtp.SMTPTransport;
+import com.sun.mail.util.BASE64EncoderStream;
 import mobile.Service.EmailService;
 import mobile.model.Entity.User;
 import mobile.security.JWT.JwtUtils;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 
-import javax.mail.MessagingException;
+import javax.mail.*;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.io.File;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.*;
 
 @Component
 public class EmailServiceImpl implements EmailService {
+
+
 
     @Autowired
     private JavaMailSender emailSender;
@@ -27,32 +41,85 @@ public class EmailServiceImpl implements EmailService {
     @Value("https://tranduy26913.github.io/DoAnHDT_WebDocTruyenChu/#/")
     private String host;
 
-    @Override
-    public void sendActiveMessage(
-            User user) {
+    private String getAccessToken()
+    {
+        try
+        {
+            Map<String,Object> params = new LinkedHashMap<>();
+            params.put("grant_type","refresh_token");
+            params.put("client_id","634458258453-qru72a9gq8csl518pa8t5c7b2njkp70h.apps.googleusercontent.com");
+            params.put("client_secret","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");
+            params.put("refresh_token","1//04t3NJRRv5CcuCgYIARAAGAQSNwF-L9IrQys1xZMsYwm3svz_jb3I8Qyx8G1SabjfFMfdpxwlzk1cZ6ECQZ5L75iKiPeH03fhj24");
 
-        MimeMessage message = emailSender.createMimeMessage();
+            StringBuilder postData = new StringBuilder();
+            for(Map.Entry<String,Object> param : params.entrySet())
+            {
+                if(postData.length() != 0)
+                {
+                    postData.append('&');
+                }
+                postData.append(URLEncoder.encode(param.getKey(),"UTF-8"));
+                postData.append('=');
+                postData.append(URLEncoder.encode(String.valueOf(param.getValue()),"UTF-8"));
+            }
+            byte[] postDataBytes = postData.toString().getBytes("UTF-8");
+
+            URL url = new URL("https://accounts.google.com/o/oauth2/token");
+            HttpURLConnection con = (HttpURLConnection)url.openConnection();
+            con.setDoOutput(true);
+            con.setUseCaches(false);
+            con.setRequestMethod("POST");
+            con.getOutputStream().write(postDataBytes);
+
+            BufferedReader  reader = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            StringBuffer buffer = new StringBuffer();
+            for (String line = reader.readLine(); line != null; line = reader.readLine())
+            {
+                buffer.append(line);
+            }
+
+            JSONObject json = new JSONObject(buffer.toString());
+            String accessToken = json.getString("access_token");
+            return accessToken;
+        }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+    @Override
+    public void sendActiveMessage(User user) {
+        String accessToken = getAccessToken();
+        String username = "server10.noreply@gmail.com";
+
         String text = templateRegisterMessage(user);
         String subject = "Activation account from Novel";
-        MimeMessageHelper helper = null;
-        try {
-            helper = new MimeMessageHelper(message, "utf-8");
-            helper.setFrom("server10.noreply@gmail.com");
-            helper.setTo(user.getEmail());
-            helper.setSubject(subject);
-            helper.setText(text,true);
-        } catch (MessagingException e) {
-            e.printStackTrace();
-        }
-        emailSender.send(message);
+
+            ((JavaMailSenderImpl)emailSender).setPassword(accessToken);
+            MimeMessage message = emailSender.createMimeMessage();
+            MimeMessageHelper helper = null;
+            try {
+                helper = new MimeMessageHelper(message, "utf-8");
+                helper.setFrom("server10.noreply@gmail.com");
+                helper.setTo(user.getEmail());
+                helper.setSubject(subject);
+                helper.setText(text, true);
+            } catch (MessagingException e) {
+                e.printStackTrace();
+            }
+            emailSender.send(message);
     }
+
+
 
     @Override
     public void sendForgetPasswordMessage(
-            User user,String newpassword) {
-
+            User user, String newpassword) {
+        String accessToken = getAccessToken();
+        ((JavaMailSenderImpl)emailSender).setPassword(accessToken);
         MimeMessage message = emailSender.createMimeMessage();
-        String text = templateForgetPasswordMessage(user,newpassword);
+        String text = templateForgetPasswordMessage(user, newpassword);
         String subject = "New password from Novel";
         MimeMessageHelper helper = null;
         try {
@@ -60,7 +127,7 @@ public class EmailServiceImpl implements EmailService {
             helper.setFrom("server10.noreply@gmail.com");
             helper.setTo(user.getEmail());
             helper.setSubject(subject);
-            helper.setText(text,true);
+            helper.setText(text, true);
         } catch (MessagingException e) {
             e.printStackTrace();
         }
@@ -79,22 +146,22 @@ public class EmailServiceImpl implements EmailService {
             helper.setFrom("noreply@baeldung.com");
             helper.setTo(to);
             helper.setSubject(subject);
-            helper.setText(text,true);
+            helper.setText(text, true);
             FileSystemResource file
                     = new FileSystemResource(new File(pathToAttachment));
             helper.addAttachment("Invoice", file);
         } catch (MessagingException e) {
             e.printStackTrace();
         }
-         emailSender.send(message);
+        emailSender.send(message);
     }
 
 
     public String templateRegisterMessage(User user) {
         String token = jwtUtils.generateEmailJwtToken(user.getUsername());
-        String validationLink = host+"active/"+token;
+        String validationLink = host + "active/" + token;
         String username = user.getUsername();
-        String text="<!DOCTYPE HTML PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional //EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
+        String text = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional //EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
                 "<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">\n" +
                 "<head>\n" +
                 "<!--[if gte mso 9]>\n" +
@@ -318,7 +385,7 @@ public class EmailServiceImpl implements EmailService {
                 "      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:10px 20px;font-family:'Raleway',sans-serif;\" align=\"left\">\n" +
                 "        \n" +
                 "  <div class=\"v-text-align v-line-height\" style=\"color: #132f40; line-height: 140%; text-align: left; word-wrap: break-word;\">\n" +
-                "    <p style=\"font-size: 14px; line-height: 140%;\"><span style=\"font-family: Rubik, sans-serif; font-size: 16px; line-height: 22.4px;\">Hello <strong>"+username+"</strong>, </span><span style=\"color: #2dc26b; font-family: 'arial black', 'avant garde', arial; font-size: 16px; line-height: 22.4px;\">registration completed!</span></p>\n" +
+                "    <p style=\"font-size: 14px; line-height: 140%;\"><span style=\"font-family: Rubik, sans-serif; font-size: 16px; line-height: 22.4px;\">Hello <strong>" + username + "</strong>, </span><span style=\"color: #2dc26b; font-family: 'arial black', 'avant garde', arial; font-size: 16px; line-height: 22.4px;\">registration completed!</span></p>\n" +
                 "  </div>\n" +
                 "\n" +
                 "      </td>\n" +
@@ -367,7 +434,7 @@ public class EmailServiceImpl implements EmailService {
                 "        \n" +
                 "  <div class=\"v-text-align v-line-height\" style=\"color: #333333; line-height: 160%; text-align: left; word-wrap: break-word;\">\n" +
                 "    <p style=\"font-size: 14px; line-height: 160%;\"><strong><span style=\"font-family: Raleway, sans-serif; font-size: 14px; line-height: 22.4px;\">Thanks so much for joining with us! </span></strong></p>\n" +
-                "<p style=\"font-size: 14px; line-height: 160%;\"><span style=\"font-family: Raleway, sans-serif; font-size: 14px; line-height: 22.4px;\">Your username is:&nbsp; \"<em><strong><span style=\"color: #2dc26b; font-size: 14px; line-height: 22.4px;\">"+username+" \"</span></strong></em></span></p>\n" +
+                "<p style=\"font-size: 14px; line-height: 160%;\"><span style=\"font-family: Raleway, sans-serif; font-size: 14px; line-height: 22.4px;\">Your username is:&nbsp; \"<em><strong><span style=\"color: #2dc26b; font-size: 14px; line-height: 22.4px;\">" + username + " \"</span></strong></em></span></p>\n" +
                 "  </div>\n" +
                 "\n" +
                 "      </td>\n" +
@@ -418,7 +485,7 @@ public class EmailServiceImpl implements EmailService {
                 "        \n" +
                 "<div class=\"v-text-align\" align=\"center\">\n" +
                 "  <!--[if mso]><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-spacing: 0; border-collapse: collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;font-family:'Raleway',sans-serif;\"><tr><td class=\"v-text-align\" style=\"font-family:'Raleway',sans-serif;\" align=\"center\"><v:roundrect xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:w=\"urn:schemas-microsoft-com:office:word\" href=\"\" style=\"height:36px; v-text-anchor:middle; width:200px;\" arcsize=\"55.5%\" strokecolor=\"#f1c40f\" strokeweight=\"2px\" fillcolor=\"#2dc26b\"><w:anchorlock/><center style=\"color:#FFFFFF;font-family:'Raleway',sans-serif;\"><![endif]-->\n" +
-                "    <a href=\""+validationLink+"\" target=\"_blank\" style=\"box-sizing: border-box;display: inline-block;font-family:'Raleway',sans-serif;text-decoration: none;-webkit-text-size-adjust: none;text-align: center;color: #FFFFFF; background-color: #2dc26b; border-radius: 20px;-webkit-border-radius: 20px; -moz-border-radius: 20px; width:auto; max-width:100%; overflow-wrap: break-word; word-break: break-word; word-wrap:break-word; mso-border-alt: none;border-top-color: #f1c40f; border-top-style: solid; border-top-width: 2px; border-left-color: #f1c40f; border-left-style: solid; border-left-width: 2px; border-right-color: #f1c40f; border-right-style: solid; border-right-width: 2px; border-bottom-color: #f1c40f; border-bottom-style: solid; border-bottom-width: 2px;\">\n" +
+                "    <a href=\"" + validationLink + "\" target=\"_blank\" style=\"box-sizing: border-box;display: inline-block;font-family:'Raleway',sans-serif;text-decoration: none;-webkit-text-size-adjust: none;text-align: center;color: #FFFFFF; background-color: #2dc26b; border-radius: 20px;-webkit-border-radius: 20px; -moz-border-radius: 20px; width:auto; max-width:100%; overflow-wrap: break-word; word-break: break-word; word-wrap:break-word; mso-border-alt: none;border-top-color: #f1c40f; border-top-style: solid; border-top-width: 2px; border-left-color: #f1c40f; border-left-style: solid; border-left-width: 2px; border-right-color: #f1c40f; border-right-style: solid; border-right-width: 2px; border-bottom-color: #f1c40f; border-bottom-style: solid; border-bottom-width: 2px;\">\n" +
                 "      <span class=\"v-line-height\" style=\"display:block;padding:10px 25px;line-height:120%;\"><span style=\"font-size: 14px; line-height: 16.8px;\">&nbsp;Active Your Account &gt;&gt;</span></span>\n" +
                 "    </a>\n" +
                 "  <!--[if mso]></center></v:roundrect></td></tr></table><![endif]-->\n" +
@@ -671,7 +738,7 @@ public class EmailServiceImpl implements EmailService {
     }
     public String templateForgetPasswordMessage(User user, String newpassord) {
         String username = user.getUsername();
-        String text="<!DOCTYPE HTML PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional //EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
+        String text = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional //EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
                 "<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">\n" +
                 "<head>\n" +
                 "<!--[if gte mso 9]>\n" +
@@ -895,7 +962,7 @@ public class EmailServiceImpl implements EmailService {
                 "      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:10px 20px;font-family:'Raleway',sans-serif;\" align=\"left\">\n" +
                 "        \n" +
                 "  <div class=\"v-text-align v-line-height\" style=\"color: #132f40; line-height: 140%; text-align: left; word-wrap: break-word;\">\n" +
-                "    <p style=\"font-size: 14px; line-height: 140%;\"><span style=\"font-family: Rubik, sans-serif; font-size: 16px; line-height: 22.4px;\">Hello <strong>"+username+"</strong>, </span><span style=\"color: #2dc26b; font-family: 'arial black', 'avant garde', arial; font-size: 16px; line-height: 22.4px;\">reset password complete!</span></p>\n" +
+                "    <p style=\"font-size: 14px; line-height: 140%;\"><span style=\"font-family: Rubik, sans-serif; font-size: 16px; line-height: 22.4px;\">Hello <strong>" + username + "</strong>, </span><span style=\"color: #2dc26b; font-family: 'arial black', 'avant garde', arial; font-size: 16px; line-height: 22.4px;\">reset password complete!</span></p>\n" +
                 "  </div>\n" +
                 "\n" +
                 "      </td>\n" +
@@ -944,7 +1011,7 @@ public class EmailServiceImpl implements EmailService {
                 "        \n" +
                 "  <div class=\"v-text-align v-line-height\" style=\"color: #333333; line-height: 160%; text-align: left; word-wrap: break-word;\">\n" +
                 "    <p style=\"font-size: 14px; line-height: 160%;\"><strong><span style=\"font-family: Raleway, sans-serif; font-size: 14px; line-height: 22.4px;\">Thanks so much for joining with us! </span></strong></p>\n" +
-                "<p style=\"font-size: 14px; line-height: 160%;\"><span style=\"font-family: Raleway, sans-serif; font-size: 14px; line-height: 22.4px;\">Your new password is:&nbsp; \"<em><strong><span style=\"color: #2dc26b; font-size: 14px; line-height: 22.4px;\">"+newpassord+" \"</span></strong></em></span></p>\n" +
+                "<p style=\"font-size: 14px; line-height: 160%;\"><span style=\"font-family: Raleway, sans-serif; font-size: 14px; line-height: 22.4px;\">Your new password is:&nbsp; \"<em><strong><span style=\"color: #2dc26b; font-size: 14px; line-height: 22.4px;\">" + newpassord + " \"</span></strong></em></span></p>\n" +
                 "  </div>\n" +
                 "\n" +
                 "      </td>\n" +
