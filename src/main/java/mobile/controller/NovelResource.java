@@ -89,7 +89,7 @@ public class NovelResource {
         }
         return new ResponseEntity<List<Novel>>(novelList, HttpStatus.OK);
     }
-
+/*
     @GetMapping("/search")
     @ResponseBody
     public ResponseEntity<List<Novel>> searchNovel(@RequestParam(defaultValue = "") String theloai,
@@ -107,6 +107,25 @@ public class NovelResource {
             throw new RecordNotFoundException("Không tìm thấy truyện");
         }
         return new ResponseEntity<List<Novel>>(novelList, HttpStatus.OK);
+    }*/
+    @GetMapping("/search")
+    @ResponseBody
+    public ResponseEntity<List<Novel>> searchNovelByTenTruyenLike(@RequestParam(defaultValue = "") String theloai,
+                                                   @RequestParam(defaultValue = "") String tentruyen, @RequestParam(defaultValue = "tentruyen") String sort,
+                                                   @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "3") int size){
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
+        List<Novel> novelList = null;
+        if (theloai.equals("")) {
+            novelList = novelService.SearchByTentruyen(tentruyen, pageable);
+        } else {
+            novelList = novelService.findByTentruyenLike(tentruyen);
+        }
+
+        if (novelList == null) {
+            throw new RecordNotFoundException("Không tìm thấy truyện");
+        }
+        return new ResponseEntity<List<Novel>>(novelList, HttpStatus.OK);
+
     }
 
     @GetMapping("/novel/{url}")

@@ -21,4 +21,5 @@ public interface NovelService {
     void SaveNovel(Novel newNovel);
     Optional<Novel> findById(ObjectId id);
     void DeleteNovel(Novel novel);
+    List<Novel> findByTentruyenLike(String name);
 }

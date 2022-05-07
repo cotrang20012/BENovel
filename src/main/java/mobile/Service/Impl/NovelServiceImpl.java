@@ -91,4 +91,10 @@ public class NovelServiceImpl implements NovelService {
     public void DeleteNovel(Novel novel) {
         novelRepository.delete(novel);
     }
+
+    @Override
+    public List<Novel> findByTentruyenLike(String name) {
+        log.info("Searching Novel by firstname like: "+name);
+        return novelRepository.findByTentruyenLike(name);
+    }
 }
