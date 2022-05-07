@@ -442,7 +442,7 @@ public class NovelResource {
             }
 
             if(novel.getNguoidangtruyen().getUsername().equals(user.getUsername())){
-                int chapnumber = chapterService.countByDauTruyen(novel.getId());
+                int chapnumber = chapterService.countByDauTruyen(novel.getId()) + 1;
                 String tenchap = "Chương "+chapnumber+": " +createChapterRequest.getTenchap();
                 Chapter newChapter = new Chapter();
                 newChapter.setDautruyenId(novel);
@@ -492,7 +492,7 @@ public class NovelResource {
                 throw new RecordNotFoundException("Không tìm thấy chương cần chỉnh sửa");
             }
             if(novel.getNguoidangtruyen().getUsername().equals(user.getUsername())){
-                String tenchap = "Chương "+updateChapterRequest.getChapnumber()+": " +updateChapterRequest.getTenchap();
+                String tenchap = updateChapterRequest.getTenchap();
                 chapter.setTenchap(tenchap);
                 chapter.setContent(updateChapterRequest.getContent());
                 chapterService.SaveChapter(chapter);
