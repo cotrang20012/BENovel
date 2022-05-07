@@ -259,8 +259,13 @@ public class NovelResource {
             }
             List<ReadingResponse> readingResponseList = new ArrayList<>();
             for (Reading reading : readingList) {
-                int sochap = chapterService.countByDauTruyen(reading.getNovel().getId());
-                readingResponseList.add(ReadingMapping.EntityToResponese(reading, sochap));
+                try {
+                    int sochap = chapterService.countByDauTruyen(reading.getNovel().getId());
+                    readingResponseList.add(ReadingMapping.EntityToResponese(reading, sochap));
+                }
+                catch (Exception ex){
+                    
+                }
             }
 
             return new ResponseEntity<List<ReadingResponse>>(readingResponseList, HttpStatus.OK);
@@ -285,10 +290,14 @@ public class NovelResource {
             }
             List<ReadingResponse> readingResponseList = new ArrayList<>();
             for (Novel novel : novelList) {
-                int sochap = chapterService.countByDauTruyen(novel.getId());
-                readingResponseList.add(ReadingMapping.NovelToResponese(novel, sochap));
-            }
+                try{
+                    int sochap = chapterService.countByDauTruyen(novel.getId());
+                    readingResponseList.add(ReadingMapping.NovelToResponese(novel, sochap));
+                }catch (Exception ex){
 
+                }
+
+            }
             return new ResponseEntity<List<ReadingResponse>>(readingResponseList, HttpStatus.OK);
 
     }

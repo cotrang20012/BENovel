@@ -19,7 +19,13 @@ public class SavedMapping {
     public static List<SavedResponse> ListEntityToResponse(List<Saved> savedList){
         List<SavedResponse> savedResponseList = new ArrayList<>();
         for (Saved saved: savedList ) {
-            savedResponseList.add(EntityToResponse(saved));
+            try{
+                savedResponseList.add(EntityToResponse(saved));
+            }
+            catch (Exception ex){
+
+            }
+
         }
         return savedResponseList;
     }
