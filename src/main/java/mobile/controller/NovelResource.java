@@ -394,8 +394,8 @@ public class NovelResource {
             }
 
             if(findNovel.getNguoidangtruyen().getUsername().equals(user.getUsername())){
-                //commentService.DeleteCommentByNovelUrl(findNovel.getUrl());
-                //readingService.deleteAllReadingByNovel(findNovel);
+                commentService.DeleteCommentByNovelUrl(findNovel.getUrl());
+                readingService.deleteAllReadingByNovel(findNovel);
                 chapterService.DeleteAllChapterByNovel(findNovel);
                 novelService.DeleteNovel(findNovel);
             }
