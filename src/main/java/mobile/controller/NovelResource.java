@@ -89,7 +89,7 @@ public class NovelResource {
         }
         return new ResponseEntity<List<Novel>>(novelList, HttpStatus.OK);
     }
-
+/*
     @GetMapping("/search")
     @ResponseBody
     public ResponseEntity<List<Novel>> searchNovel(@RequestParam(defaultValue = "") String theloai,
@@ -107,6 +107,25 @@ public class NovelResource {
             throw new RecordNotFoundException("Không tìm thấy truyện");
         }
         return new ResponseEntity<List<Novel>>(novelList, HttpStatus.OK);
+    }*/
+    @GetMapping("/search")
+    @ResponseBody
+    public ResponseEntity<List<Novel>> searchNovelByTenTruyenLike(@RequestParam(defaultValue = "") String theloai,
+                                                   @RequestParam(defaultValue = "") String tentruyen, @RequestParam(defaultValue = "tentruyen") String sort,
+                                                   @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "3") int size){
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
+        List<Novel> novelList = null;
+        if (theloai.equals("")) {
+            novelList = novelService.SearchByTentruyen(tentruyen, pageable);
+        } else {
+            novelList = novelService.findByTentruyenLike(tentruyen);
+        }
+
+        if (novelList == null) {
+            throw new RecordNotFoundException("Không tìm thấy truyện");
+        }
+        return new ResponseEntity<List<Novel>>(novelList, HttpStatus.OK);
+
     }
 
     @GetMapping("/novel/{url}")
@@ -259,8 +278,13 @@ public class NovelResource {
             }
             List<ReadingResponse> readingResponseList = new ArrayList<>();
             for (Reading reading : readingList) {
-                int sochap = chapterService.countByDauTruyen(reading.getNovel().getId());
-                readingResponseList.add(ReadingMapping.EntityToResponese(reading, sochap));
+                try {
+                    int sochap = chapterService.countByDauTruyen(reading.getNovel().getId());
+                    readingResponseList.add(ReadingMapping.EntityToResponese(reading, sochap));
+                }
+                catch (Exception ex){
+                    
+                }
             }
 
             return new ResponseEntity<List<ReadingResponse>>(readingResponseList, HttpStatus.OK);
@@ -285,10 +309,14 @@ public class NovelResource {
             }
             List<ReadingResponse> readingResponseList = new ArrayList<>();
             for (Novel novel : novelList) {
-                int sochap = chapterService.countByDauTruyen(novel.getId());
-                readingResponseList.add(ReadingMapping.NovelToResponese(novel, sochap));
-            }
+                try{
+                    int sochap = chapterService.countByDauTruyen(novel.getId());
+                    readingResponseList.add(ReadingMapping.NovelToResponese(novel, sochap));
+                }catch (Exception ex){
 
+                }
+
+            }
             return new ResponseEntity<List<ReadingResponse>>(readingResponseList, HttpStatus.OK);
 
     }
@@ -385,8 +413,8 @@ public class NovelResource {
             }
 
             if(findNovel.getNguoidangtruyen().getUsername().equals(user.getUsername())){
-                //commentService.DeleteCommentByNovelUrl(findNovel.getUrl());
-                //readingService.deleteAllReadingByNovel(findNovel);
+                commentService.DeleteCommentByNovelUrl(findNovel.getUrl());
+                readingService.deleteAllReadingByNovel(findNovel);
                 chapterService.DeleteAllChapterByNovel(findNovel);
                 novelService.DeleteNovel(findNovel);
             }
@@ -442,7 +470,7 @@ public class NovelResource {
             }
 
             if(novel.getNguoidangtruyen().getUsername().equals(user.getUsername())){
-                int chapnumber = chapterService.countByDauTruyen(novel.getId());
+                int chapnumber = chapterService.countByDauTruyen(novel.getId()) + 1;
                 String tenchap = "Chương "+chapnumber+": " +createChapterRequest.getTenchap();
                 Chapter newChapter = new Chapter();
                 newChapter.setDautruyenId(novel);
@@ -492,7 +520,7 @@ public class NovelResource {
                 throw new RecordNotFoundException("Không tìm thấy chương cần chỉnh sửa");
             }
             if(novel.getNguoidangtruyen().getUsername().equals(user.getUsername())){
-                String tenchap = "Chương "+updateChapterRequest.getChapnumber()+": " +updateChapterRequest.getTenchap();
+                String tenchap = updateChapterRequest.getTenchap();
                 chapter.setTenchap(tenchap);
                 chapter.setContent(updateChapterRequest.getContent());
                 chapterService.SaveChapter(chapter);

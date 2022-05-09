@@ -90,7 +90,7 @@ public class SavedResource {
 
 
 
-    @GetMapping("/")
+    @GetMapping("/savedbyuser")
     @ResponseBody
     public ResponseEntity<List<SavedResponse>> getSavedsByUsername(HttpServletRequest request){
         String authorizationHeader = request.getHeader(AUTHORIZATION);

@@ -195,4 +195,29 @@ public class CommentResources {
             throw new BadCredentialsException("access token is missing");
         }
     }
+    @GetMapping("count/{url}")
+    @ResponseBody
+    public ResponseEntity<SuccessResponse> countCommentUrl(@PathVariable String url,
+                                                           @RequestParam(defaultValue = "") String parentId,
+                                                           @RequestParam(defaultValue = "0") int page,
+                                                           @RequestParam(defaultValue = "3") int size){
+        Pageable pageable = PageRequest.of(page, size, Sort.by("chapnumber"));
+        List<Comment> commentList = null;
+        if(parentId.equals(""))
+            commentList = commentService.findByUrl(url,pageable);
+        else
+            commentList = commentService.findByIdParent(parentId,pageable);
+
+        if(commentList == null) {
+            throw new RecordNotFoundException("Not found novel: "+url);
+        }
+        List<CommentResponse> responseList = CommentMapping.ListEntityToResponse(commentList);
+
+        SuccessResponse response = new SuccessResponse();
+        response.setStatus(HttpStatus.OK.value());
+        response.setMessage("count comments successful");
+        response.setSuccess(true);
+        response.getData().put("countCommentByUrl",responseList.stream().count());
+        return new ResponseEntity<SuccessResponse>(response,HttpStatus.OK);
+    }
 }
