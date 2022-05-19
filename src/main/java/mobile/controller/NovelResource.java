@@ -58,12 +58,13 @@ public class NovelResource {
 
     @GetMapping("/")
     @ResponseBody
-    public ResponseEntity<List<Novel>> getNovels(@RequestParam(defaultValue = "None") String status,
+    public ResponseEntity<List<NovelResponse>> getNovels(@RequestParam(defaultValue = "None") String status,
                                                  @RequestParam(defaultValue = "tentruyen") String sort, @RequestParam(defaultValue = "0") int page,
                                                  @RequestParam(defaultValue = "3") int size) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
         List<Novel> novelList = null;
+        List<NovelResponse> novelResponseList=new ArrayList<>();
         if (status.equals("None"))
             novelList = novelService.getNovels(pageable);
         else
@@ -72,7 +73,11 @@ public class NovelResource {
         if (novelList == null) {
             throw new RecordNotFoundException("Không tìm thấy truyện");
         }
-        return new ResponseEntity<List<Novel>>(novelList, HttpStatus.OK);
+        for (Novel novel: novelList
+        ) {
+            novelResponseList.add(NovelMapping.EntityToNovelResponse(novel));
+        }
+        return new ResponseEntity<List<NovelResponse>>(novelResponseList, HttpStatus.OK);
     }
 
     @GetMapping("/theloai/{theloai}")
@@ -82,11 +87,16 @@ public class NovelResource {
                                                        @RequestParam(defaultValue = "3") int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
         List<Novel> novelList = null;
+        //List<NovelResponse> novelResponseList=new ArrayList<>();
         novelList = novelService.SearchByType(theloai, pageable);
 
         if (novelList == null) {
             throw new RecordNotFoundException("Không tìm thấy truyện");
         }
+//        for (Novel novel: novelList
+//             ) {
+//            novelResponseList.add(NovelMapping.EntityToNovelResponse(novel));
+//        }
         return new ResponseEntity<List<Novel>>(novelList, HttpStatus.OK);
     }
 /*

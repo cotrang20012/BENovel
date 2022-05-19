@@ -30,7 +30,7 @@ public class CommentServiceImpl implements CommentService {
             UpgradeComment(commentParent,0);
             comment.setDepth(commentParent.getDepth()-1);
         }
-        commentRepository.save(comment);
+         commentRepository.save(comment);
     }
 
     public void UpgradeComment(Comment comment,int childDepth){

@@ -63,7 +63,7 @@ public class CommentResources {
         if(authorizationHeader != null && authorizationHeader.startsWith("Bearer ")){
             String accessToken = authorizationHeader.substring("Bearer ".length());
 
-            if(jwtUtils.validateExpiredToken(accessToken) == true){
+            if(jwtUtils.validateExpiredToken(accessToken)){
                 throw new BadCredentialsException("access token is expired");
             }
 
@@ -132,7 +132,7 @@ public class CommentResources {
         if(authorizationHeader != null && authorizationHeader.startsWith("Bearer ")){
             String accessToken = authorizationHeader.substring("Bearer ".length());
 
-            if(jwtUtils.validateExpiredToken(accessToken) == true){
+            if(jwtUtils.validateExpiredToken(accessToken)){
                 throw new BadCredentialsException("access token is expired");
             }
 
@@ -167,7 +167,7 @@ public class CommentResources {
         if(authorizationHeader != null && authorizationHeader.startsWith("Bearer ")){
             String accessToken = authorizationHeader.substring("Bearer ".length());
 
-            if(jwtUtils.validateExpiredToken(accessToken) == true){
+            if(jwtUtils.validateExpiredToken(accessToken)){
                 throw new BadCredentialsException("access token is expired");
             }
 

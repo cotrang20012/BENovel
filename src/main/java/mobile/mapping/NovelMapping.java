@@ -4,6 +4,7 @@ import mobile.model.Entity.Novel;
 import mobile.model.payload.request.novel.CreateNovelRequest;
 import mobile.model.payload.request.novel.UpdateNovelRequest;
 import mobile.model.payload.response.NovelDetailResponse;
+import mobile.model.payload.response.NovelResponse;
 
 public class NovelMapping {
     public static Novel CreateRequestToNovel(CreateNovelRequest createNovelRequest){
@@ -40,5 +41,20 @@ public class NovelMapping {
         oldNovel.setTacgia(updateNovelRequest.getTacgia());
         oldNovel.setUrl(updateNovelRequest.getUrl());
         oldNovel.setNoidung(updateNovelRequest.getNoidung());
+    }
+
+    public static NovelResponse EntityToNovelResponse(Novel novel){
+        NovelResponse novelResponse = new NovelResponse();
+        novelResponse.setHinhanh(novel.getHinhanh());
+        novelResponse.setTentruyen(novel.getTentruyen());
+        novelResponse.setTacgia(novel.getTacgia());
+        novelResponse.setUrl(novel.getUrl());
+        novelResponse.setDanhgia(novel.getDanhgia());
+        novelResponse.setNoidung(novel.getNoidung());
+        novelResponse.setLuotdoc(novel.getLuotdoc());
+        novelResponse.setSoluongdanhgia(novel.getSoluongdanhgia());
+        novelResponse.setTheloai(novel.getTheloai());
+        novelResponse.setTrangthai(novel.getTrangthai());
+        return novelResponse;
     }
 }
